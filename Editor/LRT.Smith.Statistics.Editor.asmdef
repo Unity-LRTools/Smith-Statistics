@@ -2,7 +2,8 @@
     "name": "LRT.Smith.Statistics.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:09004e0a3646d3f4aae4bd015f8c1112"
+        "GUID:09004e0a3646d3f4aae4bd015f8c1112",
+        "GUID:bd8da4bd6687fc54bb2614ed83b82c20"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
