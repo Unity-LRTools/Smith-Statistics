@@ -6,13 +6,13 @@ namespace LRT.Smith.Statistics
 	[Serializable]
 	public class StatisticRange
 	{
-		string statisticType;
-		StatisticType valueType;
+		public string statisticName;
+		public StatisticType valueType;
 
-		public float maxValue;
-		public float minValue;
 		public int maxLevel;
 		public Ease ease;
+		public float maxValue;
+		public float minValue;
 	}
 }
 

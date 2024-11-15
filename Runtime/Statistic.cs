@@ -66,7 +66,16 @@ namespace LRT.Smith.Statistics
 		/// <returns>The final value of this statistic</returns>
 		protected abstract T LerpValue(float easedLevel);
 
-		/// <returns>The value calculated, can emit event if value has been changed</returns>
+		/// <summary>
+		/// Initialize the range value without passing by constructor because we
+		/// calculate value at the end of parent class constructor
+		/// </summary>
+		/// <param name="range">The range data</param>
+		protected abstract void InitMinMaxValue(StatisticRange range);
+
+		/// <returns>
+		/// The value calculated, can emit event if value has been changed
+		/// </returns>
 		private T GetValue()
 		{
 			if (!value.HasValue)
@@ -103,6 +112,8 @@ namespace LRT.Smith.Statistics
 
 		protected Statistic(StatisticRange range, int level = 1)
 		{
+			maxLevel = range.maxLevel;
+			ease = range.ease;
 			SetCurrentLevel(level);
 		}
 
@@ -121,11 +132,17 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
-	public sealed class SInt : Statistic<int>
+	public class StatsInt : Statistic<int>
 	{
-		public SInt(StatisticRange range, int level) : base(range, level) { }
-
-		protected override int LerpValue(float easedLevel)
+		public StatsInt(StatisticRange range, int level) : base(range, level) { }
+		
+		protected sealed override void InitMinMaxValue(StatisticRange range)
+		{
+			minValue = (int)range.minValue;
+			maxValue = (int)range.maxValue;
+		}
+ 
+		protected sealed override int LerpValue(float easedLevel)
 		{
 			return Mathf.RoundToInt(Mathf.Lerp(minValue, maxValue, easedLevel));
 		}
@@ -134,11 +151,17 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
-	public sealed class SFloat : Statistic<float>
+	public class StatsFloat : Statistic<float>
 	{
-		public SFloat(StatisticRange range, int level) : base(range, level) { }
+		public StatsFloat(StatisticRange range, int level) : base(range, level) { }
 
-		protected override float LerpValue(float easedLevel)
+		protected sealed override void InitMinMaxValue(StatisticRange range)
+		{
+			minValue = range.minValue;
+			maxValue = range.maxValue;
+		}
+
+		protected sealed override float LerpValue(float easedLevel)
 		{
 			return Mathf.Lerp(minValue, maxValue, easedLevel);
 		}
