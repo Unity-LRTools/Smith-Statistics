@@ -6,7 +6,8 @@
     "unity": "2022.3",
     "licensesUrl": "https://opensource.org/license/mit",
     "dependencies": {
-      "com.lrtools.easing": "0.1.0"
+      "com.lrtools.easing": "0.2.0",
+      "com.lrtools.utility": "0.2.0"
     },
     "keywords": [
         "LRTools",

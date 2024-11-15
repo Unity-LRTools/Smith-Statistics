@@ -58,7 +58,7 @@ namespace LRT.Smith.Statistics.Editor
 
 			public override void Show()
 			{
-				easing = EasingGUILayout.Ease("Curve", easing);
+				easing = EaseGUILayout.Ease("Curve", easing);
 			}
 
 			public override void OnActionButton()
@@ -105,7 +105,7 @@ namespace LRT.Smith.Statistics.Editor
 				range.statisticName = EditorGUILayout.TextField("Statistic name", range.statisticName);
 				range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
 				range.maxLevel = EditorGUILayout.IntField("Max Level", range.maxLevel);
-				range.ease = EasingGUILayout.Ease("Growth", range.ease);
+				range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
 
 				if (range.valueType == StatisticType.Int)
 				{
