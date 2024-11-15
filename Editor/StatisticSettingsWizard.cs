@@ -1,5 +1,5 @@
-using LRT.Easing;
 using LRT.Easing.Editor;
+using LRT.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,17 +25,43 @@ namespace LRT.Smith.Statistics.Editor
 
 		private void OnGUI()
 		{
-			EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
+			DrawTopContainer(EditorGUILayout.GetControlRect(false, 50));
 
 			panels[state].Show();
 
-			GUILayout.FlexibleSpace();
+			DrawBottomContainer();
+		}
 
+		private void DrawBottomContainer()
+		{
+			GUILayout.FlexibleSpace();
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			if (GUILayout.Button("Create"))
+
+			if (GUILayout.Button(panels[state].ActionButtonLabel(), GUILayout.Width(150), GUILayout.Height(35)))
 				panels[state].OnActionButton();
+			if (GUILayout.Button("Exit", GUILayout.Width(150), GUILayout.Height(35)))
+				focusedWindow.Close();
+
+			GUILayout.FlexibleSpace();
 			EditorGUILayout.EndHorizontal();
+		}
+
+		private void DrawTopContainer(Rect container)
+		{
+			ShowMenuButton(container.LeftHalf(), "Update", SSWizardPanelType.Update);
+			ShowMenuButton(container.RightHalf(), "Create", SSWizardPanelType.Create);
+
+			void ShowMenuButton(Rect right, string label, SSWizardPanelType target)
+			{
+				if (state == target)
+					GUI.enabled = false;
+
+				if (GUI.Button(right, label))
+					state = target;
+
+				GUI.enabled = true;
+			}
 		}
 
 		private enum SSWizardPanelType
@@ -48,21 +74,25 @@ namespace LRT.Smith.Statistics.Editor
 		{
 			public abstract void Show();
 			public abstract void OnActionButton();
+			public abstract string ActionButtonLabel();
 		}
 
 		private class SSWizardPanelUpdate : SSWizardPanel
 		{
-			Ease easing;
-
 			public override void Show()
 			{
-				easing = EaseGUILayout.Ease("Curve", easing);
+				foreach (StatisticRange range in StatisticsData.Instance.statisticsRange)
+				{
+					EditorGUILayout.LabelField($"{range.statisticName} - ({range.valueType})");
+				}
 			}
 
 			public override void OnActionButton()
 			{
 				throw new NotImplementedException();
 			}
+
+			public override string ActionButtonLabel() => "Update";
 		}
 
 		private class SSWizardPanelCreate : SSWizardPanel
@@ -79,10 +109,10 @@ namespace LRT.Smith.Statistics.Editor
 			/// [[STATISTIC_TYPE]]  - Weither the statistic is SInt or SFloat
 			/// [[STATISTIC_RANGE]] - Following format: ["key"] where key is target range
 			/// </summary>
-			private const string classTemplate = 
+			private const string classTemplate =
 @"	public class [[STATISTIC_NAME]] : [[STATISTIC_TYPE]]
 	{
-		public [[STATISTIC_NAME]](int level = 0) : base(StatisticsData.Instance.statisticsRange[[STATISTIC_RANGE]], level) { }
+		public [[STATISTIC_NAME]](int level = 0) : base(StatisticsData.Instance.GetByName([[STATISTIC_RANGE]]), level) { }
 	}
 ";
 
@@ -90,7 +120,7 @@ namespace LRT.Smith.Statistics.Editor
 			/// Parameters :
 			/// [[CLASSES]] - Insert all the statistic class at this place
 			/// </summary>
-			private const string fileTemplate = 
+			private const string fileTemplate =
 @"namespace LRT.Smith.Statistics
 {
 [[CLASSES]]
@@ -102,8 +132,8 @@ namespace LRT.Smith.Statistics.Editor
 			{
 				range.statisticName = EditorGUILayout.TextField("Statistic name", range.statisticName);
 				range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
-				range.maxLevel = EditorGUILayout.IntField("Max Level", range.maxLevel);
 				range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
+				range.maxLevel = EditorGUILayout.IntField("Max Level", range.maxLevel);
 
 				if (range.valueType == StatisticType.Int)
 				{
@@ -125,26 +155,29 @@ namespace LRT.Smith.Statistics.Editor
 				string classes = string.Empty;
 
 				StatisticRange newRange = new StatisticRange(range);
-				StatisticsData.Instance.statisticsRange.Add(newRange.statisticName, newRange);
+				StatisticsData.Instance.statisticsRange.Add(newRange);
 
-				foreach (KeyValuePair<string, StatisticRange> item in StatisticsData.Instance.statisticsRange)
+				foreach (StatisticRange item in StatisticsData.Instance.statisticsRange)
 				{
 					string template = classTemplate
-						.Replace("[[STATISTIC_NAME]]", item.Value.statisticName)
-						.Replace("[[STATISTIC_TYPE]]", StatisticTypeToClassType(item.Value.valueType))
-						.Replace("[[STATISTIC_RANGE]]", $"[\"{item.Key}\"]");
+						.Replace("[[STATISTIC_NAME]]", item.statisticName)
+						.Replace("[[STATISTIC_TYPE]]", StatisticTypeToClassType(item.valueType))
+						.Replace("[[STATISTIC_RANGE]]", $"\"{item.statisticName}\"");
 
 					classes += template;
 				}
 
 				string fileContent = fileTemplate.Replace("[[CLASSES]]", classes);
 
-				EditorUtility.SetDirty(StatisticsData.Instance);
 				File.WriteAllText(filePath, fileContent);
+				EditorUtility.SetDirty(StatisticsData.Instance);
+				AssetDatabase.SaveAssetIfDirty(StatisticsData.Instance);
 				AssetDatabase.Refresh();
 			}
 
-			public string StatisticTypeToClassType(StatisticType type)
+			public override string ActionButtonLabel() => "Create";
+
+			private string StatisticTypeToClassType(StatisticType type)
 			{
 				return type switch
 				{
