@@ -1,3 +1,8 @@
+## [0.2.1] - 15/11/2024
+### Road to editor tool
+- Upgrade project to follow new dependencie version
+- Beautity wizard a little bit
+
 ## [0.2.0] - 15/11/2024
 ### Road to editor tool
 - Add wizard window to create new statistics
