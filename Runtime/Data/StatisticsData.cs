@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+using LRT.Utility;
 
 namespace LRT.Smith.Statistics
 {
 	public class StatisticsData : LazySingletonScriptableObject<StatisticsData>
     {
-        public Dictionary<string, StatisticRange> statisticsRange = new Dictionary<string, StatisticRange>();
+        public SDictionary<string, StatisticRange> statisticsRange = new SDictionary<string, StatisticRange>();
     }
 }
 

@@ -1,13 +1,13 @@
 {
     "name": "com.lrtools.smith.statistics",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "displayName": "StatsSmith",
     "description": "StatsSmith is an easy-to-use system for managing equipment stats in Unity. Quickly set up custom statistics with a flexible, lightweight tool.",
     "unity": "2022.3",
     "licensesUrl": "https://opensource.org/license/mit",
     "dependencies": {
       "com.lrtools.easing": "0.2.0",
-      "com.lrtools.utility": "0.2.0"
+      "com.lrtools.utility": "0.3.0"
     },
     "keywords": [
         "LRTools",

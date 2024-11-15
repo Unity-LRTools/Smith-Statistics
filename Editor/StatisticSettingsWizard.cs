@@ -34,9 +34,7 @@ namespace LRT.Smith.Statistics.Editor
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			if (GUILayout.Button("Create"))
-			{
 				panels[state].OnActionButton();
-			}
 			EditorGUILayout.EndHorizontal();
 		}
 
@@ -126,7 +124,8 @@ namespace LRT.Smith.Statistics.Editor
 
 				string classes = string.Empty;
 
-				StatisticsData.Instance.statisticsRange.Add(range.statisticName, range);
+				StatisticRange newRange = new StatisticRange(range);
+				StatisticsData.Instance.statisticsRange.Add(newRange.statisticName, newRange);
 
 				foreach (KeyValuePair<string, StatisticRange> item in StatisticsData.Instance.statisticsRange)
 				{
@@ -140,6 +139,7 @@ namespace LRT.Smith.Statistics.Editor
 
 				string fileContent = fileTemplate.Replace("[[CLASSES]]", classes);
 
+				EditorUtility.SetDirty(StatisticsData.Instance);
 				File.WriteAllText(filePath, fileContent);
 				AssetDatabase.Refresh();
 			}
