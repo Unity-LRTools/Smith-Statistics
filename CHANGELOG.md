@@ -1,7 +1,13 @@
+## [0.3.0] - 17/11/2024
+### Road to editor tool
+- Add an edit page to wizard
+- Beautify wizard a little bit
+- Implement GetValueAt method in statistic class 
+
 ## [0.2.1] - 15/11/2024
 ### Road to editor tool
 - Upgrade project to follow new dependencie version
-- Beautity wizard a little bit
+- Beautify wizard a little bit
 
 ## [0.2.0] - 15/11/2024
 ### Road to editor tool
