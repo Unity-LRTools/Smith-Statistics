@@ -59,6 +59,14 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		private T? value;
 
+		public T? GetValueAt(int level)
+		{
+			if (level > maxLevel)
+				throw new ArgumentOutOfRangeException($"Target level '{level}' is out of range");
+
+			return LerpValue(ease.Evaluate(level / maxLevel));
+		}
+
 		/// <summary>
 		/// Ask childs to lerp the value
 		/// </summary>
