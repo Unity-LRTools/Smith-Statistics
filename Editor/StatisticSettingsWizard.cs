@@ -104,10 +104,33 @@ namespace LRT.Smith.Statistics.Editor
 
 			if (IsErrors(out List<string> errors, range))
 			{
-				foreach (string error in errors)
+				foreach(string error in errors)
 				{
 					EditorGUILayout.HelpBox(error, MessageType.Error);
 				}
+			}
+		}
+
+		public void DrawResultValues(StatisticRange range)
+		{
+			if (range.maxLevel <= 10)
+			{
+				for (int i = 0; i <= range.maxLevel; i++)
+				{
+					EditorGUILayout.LabelField($"[{i}] => {CalculateValueForLevel(i)}");
+				}
+			}
+			else
+			{
+				EditorGUILayout.LabelField($"WIP");
+			}
+
+			float CalculateValueForLevel(int level)
+			{
+				float easedValue = range.ease.Evaluate(level / (float)range.maxLevel);
+				float value = Mathf.Lerp(range.minValue, range.maxValue, easedValue);
+
+				return range.valueType == StatisticType.Int ? (int)value : value;
 			}
 		}
 
@@ -191,7 +214,7 @@ namespace LRT.Smith.Statistics.Editor
 			if (!string.IsNullOrEmpty(panels[state].ActionButtonLabel()) && GUILayout.Button(panels[state].ActionButtonLabel(), GUILayout.Width(150), GUILayout.Height(35)))
 				panels[state].OnActionButton();
 			GUI.enabled = wasEnable;
-
+			
 			if (GUILayout.Button("Exit", GUILayout.Width(150), GUILayout.Height(35)))
 				focusedWindow.Close();
 
@@ -343,6 +366,7 @@ namespace LRT.Smith.Statistics.Editor
 			public override void Show()
 			{
 				wizard.DrawEditableRange(range);
+				wizard.DrawResultValues(range);
 			}
 
 			public override void OnActionButton()
@@ -360,7 +384,7 @@ namespace LRT.Smith.Statistics.Editor
 			{
 				List<string> errors = new List<string>();
 
-				for (int i = 0; i < StatisticsData.Instance.statisticsRange.Count; i++)
+				for(int i = 0; i < StatisticsData.Instance.statisticsRange.Count; i++)
 				{
 					if (i == index)
 						continue;
