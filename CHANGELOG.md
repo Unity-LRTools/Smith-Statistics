@@ -1,3 +1,7 @@
+## [0.3.1] - 17/11/2024
+### Better tool
+- Implement result preview when editing or creating a new statistic
+
 ## [0.3.0] - 17/11/2024
 ### Road to editor tool
 - Add an edit page to wizard
