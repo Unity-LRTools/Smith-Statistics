@@ -6,10 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
-using UnityEngine.WSA;
 
 namespace LRT.Smith.Statistics.Editor
 {
@@ -20,6 +17,9 @@ namespace LRT.Smith.Statistics.Editor
 
 		const string folderPath = "Assets/Scripts/Smith";
 		readonly string filePath = Path.Combine(folderPath, "Statistics.cs");
+
+		List<Vector2> resultScrollPositions = new List<Vector2>();
+		int resultScrollCount = 1;
 
 		#region Template
 		/// <summary>
@@ -115,19 +115,43 @@ namespace LRT.Smith.Statistics.Editor
 		{
 			if (range.maxLevel <= 10)
 			{
-				for (int i = 0; i <= range.maxLevel; i++)
+				for (int i = 1; i <= range.maxLevel; i++)
 				{
 					EditorGUILayout.LabelField($"[{i}] => {CalculateValueForLevel(i)}");
 				}
 			}
 			else
 			{
-				EditorGUILayout.LabelField($"WIP");
+				EditorGUILayout.BeginHorizontal();
+				while (resultScrollPositions.Count <= resultScrollCount)
+				{
+					resultScrollPositions.Add(new Vector2());
+				}
+
+				for (int i = 0; i < resultScrollCount; i++)
+				{
+					using (var scrollView = new EditorGUILayout.ScrollViewScope(resultScrollPositions[i], GUILayout.Height(EditorGUIUtility.singleLineHeight * 11), GUILayout.Width(170)))
+					{
+						resultScrollPositions[i] = scrollView.scrollPosition;
+						for (int j = 1; j <= range.maxLevel; j++)
+						{
+							EditorGUILayout.LabelField($"[{j}] => {CalculateValueForLevel(j)}", GUILayout.Width(130));
+						}
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+				EditorGUILayout.BeginHorizontal();
+				if (GUILayout.Button("+"))
+					resultScrollCount++;
+				if (GUILayout.Button("-"))
+					resultScrollCount--;
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
 			}
 
 			float CalculateValueForLevel(int level)
 			{
-				float easedValue = range.ease.Evaluate(level / (float)range.maxLevel);
+				float easedValue = range.ease.Evaluate((level - 1) / (float)(range.maxLevel - 1));
 				float value = Mathf.Lerp(range.minValue, range.maxValue, easedValue);
 
 				return range.valueType == StatisticType.Int ? (int)value : value;
@@ -328,6 +352,7 @@ namespace LRT.Smith.Statistics.Editor
 			public override void Show()
 			{
 				wizard.DrawEditableRange(range);
+				wizard.DrawResultValues(range);
 			}
 
 			public override void OnActionButton()
