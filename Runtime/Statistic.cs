@@ -41,6 +41,7 @@ namespace LRT.Smith.Statistics
 
 		/// <summary>
 		/// The level of this statistic used to calculate his real value.
+		/// The level minimum is 1.
 		/// </summary>
 		private int currentLevel;
 
@@ -64,7 +65,7 @@ namespace LRT.Smith.Statistics
 			if (level > maxLevel)
 				throw new ArgumentOutOfRangeException($"Target level '{level}' is out of range");
 
-			return LerpValue(ease.Evaluate(level / maxLevel));
+			return LerpValue(ease.Evaluate(level - 1 / maxLevel - 1));
 		}
 
 		/// <summary>
@@ -98,6 +99,9 @@ namespace LRT.Smith.Statistics
 		/// <param name="newLevel">The target level</param>
 		private void SetCurrentLevel(int newLevel)
 		{
+			if (newLevel <= 0 || newLevel > maxLevel)
+				throw new ArgumentOutOfRangeException($"Level should be between [1..{maxLevel}]");
+
 			if (newLevel != currentLevel)
 			{
 				currentLevel = newLevel;
