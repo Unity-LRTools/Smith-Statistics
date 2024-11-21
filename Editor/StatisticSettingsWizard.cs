@@ -40,10 +40,15 @@ namespace LRT.Smith.Statistics.Editor
 
 		/// <summary>
 		/// Parameters :
+		/// [[DATE]] - The date the code has been generated
 		/// [[CLASSES]] - Insert all the statistic class at this place
 		/// </summary>
 		private const string fileTemplate =
-@"namespace LRT.Smith.Statistics
+@"/**
+* DISCLAIMER: This code has been generated automatically.
+* Generated on: [[DATE]]
+*/
+namespace LRT.Smith.Statistics
 {
 [[CLASSES]]
 }
@@ -183,7 +188,9 @@ namespace LRT.Smith.Statistics.Editor
 				classes += template;
 			}
 
-			string fileContent = fileTemplate.Replace("[[CLASSES]]", classes);
+			string fileContent = fileTemplate
+				.Replace("[[DATE]]", DateTime.Now.ToString())
+				.Replace("[[CLASSES]]", classes);
 
 			File.WriteAllText(filePath, fileContent);
 			EditorUtility.SetDirty(StatisticsData.Instance);
@@ -294,7 +301,8 @@ namespace LRT.Smith.Statistics.Editor
 
 				GUIStyle centeredBoldLabel = CustomGUIStyle.Label(fontStyle: FontStyle.Bold, alignment: TextAnchor.UpperCenter);
 				GUIStyle centeredLabel = CustomGUIStyle.Label(alignment: TextAnchor.UpperCenter);
-				GUIStyle rightLabel = CustomGUIStyle.Label(alignment: TextAnchor.UpperRight);
+				GUIStyle leftLabel = CustomGUIStyle.Label(alignment: TextAnchor.UpperLeft);
+				GUIStyle npButton = CustomGUIStyle.Button(padding: new RectOffset(0, 0, 0, 0));
 
 				for (int i = 0; i < StatisticsData.Instance.statisticsRange.Count; i++)
 				{
@@ -318,6 +326,10 @@ namespace LRT.Smith.Statistics.Editor
 					EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 					CustomGUIUtility.DrawBorder(rect, borderColor, 2);
 
+					// Create delete button
+					if (GUI.Button(rect.MoveX(rect.width - 23).MoveY(3).SetWidth(22).SetHeight(22), EditorGUIUtility.IconContent("TreeEditor.Trash"), npButton))
+						DeleteStatistic(range);
+
 					// Prepare button before shrinking
 					if (GUI.Button(rect, "", GUIStyle.none))
 						wizard.OpenEditFor(range, i);
@@ -327,12 +339,23 @@ namespace LRT.Smith.Statistics.Editor
 
 					// Draw field
 					EditorGUI.LabelField(rect.SetHeight(EditorGUIUtility.singleLineHeight), name, centeredBoldLabel);
-					EditorGUI.LabelField(RectUtility.lastRect, type, rightLabel);
+					EditorGUI.LabelField(RectUtility.lastRect, type, leftLabel);
 					EditorGUI.LabelField(RectUtility.lastRect.MoveY(20), values, centeredLabel);
 					EditorGUI.LabelField(RectUtility.lastRect.MoveY(20), ease, centeredLabel);
 				}
 
 				focusedWindow?.Repaint();
+
+				void DeleteStatistic(StatisticRange range)
+				{
+					if (EditorUtility.DisplayDialog($"Delete {range.statisticName}", $"Do you really want to delete the statistic {range.statisticName} ?",
+						"Yes",
+						"Oh, no !"))
+					{
+						StatisticsData.Instance.statisticsRange.Remove(range);
+						wizard.SaveSettings();
+					}
+				}
 			}
 
 			public override void OnActionButton()
@@ -428,6 +451,9 @@ namespace LRT.Smith.Statistics.Editor
 
 		private class SSWizardPanelSettings : SSWizardPanel
 		{
+			string exportPath = "Assets/";
+			TextAsset file;
+
 			public SSWizardPanelSettings(StatisticSettingsWizard wizard) : base(wizard) { }
 
 			public override bool ActionButtonIsValid() => false;
@@ -440,7 +466,40 @@ namespace LRT.Smith.Statistics.Editor
 
 			public override void Show()
 			{
+				exportPath = EditorGUILayout.TextField("Export Path", exportPath);
+				DrawMiddleButton("Export statistics to .json", ExportToJson);
 
+				file = (TextAsset)EditorGUILayout.ObjectField("Import File", file, typeof(TextAsset), false);
+				DrawMiddleButton("Import statistics from .json", ImportFromJson);
+
+				void DrawMiddleButton(string label, Action action)
+				{
+					GUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+					if (GUILayout.Button(label, GUILayout.Width(200), GUILayout.Height(40)))
+						action();
+					GUILayout.FlexibleSpace();
+					GUILayout.EndHorizontal();
+				}
+			}
+
+			private void ExportToJson()
+			{
+				StatisticsRangeWrapper wrapper = new StatisticsRangeWrapper() { items = StatisticsData.Instance.statisticsRange };
+				string json = JsonUtility.ToJson(wrapper);
+
+				File.WriteAllText(Path.Combine(exportPath, "Smith_StatisticsData.json"), json);
+				AssetDatabase.Refresh();
+			}
+
+			private void ImportFromJson()
+			{
+				if (file == null)
+					return;
+
+				StatisticsRangeWrapper wrapper = JsonUtility.FromJson<StatisticsRangeWrapper>(file.text);
+				StatisticsData.Instance.statisticsRange = wrapper.items;
+				wizard.SaveSettings();
 			}
 		}
 	}
@@ -470,6 +529,9 @@ namespace LRT.Smith.Statistics.Editor
 
 		private static bool IsValidClassName(string className)
 		{
+			if (string.IsNullOrEmpty(className))
+				return false;
+
 			return Regex.IsMatch(className, pattern);
 		}
 
@@ -482,6 +544,11 @@ namespace LRT.Smith.Statistics.Editor
 		{
 			return !IsReservedKeyword(className) && IsValidClassName(className);
 		}
+	}
+
+	internal class StatisticsRangeWrapper
+	{
+		public List<StatisticRange> items;
 	}
 }
 
