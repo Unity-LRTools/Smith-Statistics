@@ -5,6 +5,8 @@ using LRT.Utility.Editor;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,6 +14,8 @@ namespace LRT.Smith.Statistics.Editor
 {
 	public class StatisticSettingsWizard : EditorWindow
 	{
+		public StatisticSettings settings;
+
 		private SSWizardPanelType state = SSWizardPanelType.Create;
 		private Dictionary<SSWizardPanelType, SSWizardPanel> panels;
 
@@ -25,13 +29,12 @@ namespace LRT.Smith.Statistics.Editor
 		/// <summary>
 		/// Parameters :
 		/// [[STATISTIC_NAME]]  - The name of the statistic following CamelCase
-		/// [[STATISTIC_TYPE]]  - Weither the statistic is SInt or SFloat
 		/// [[STATISTIC_RANGE]] - Following format: ["key"] where key is target range
 		/// </summary>
 		private const string classTemplate =
-@"	public class [[STATISTIC_NAME]] : [[STATISTIC_TYPE]]
+@"	public class [[STATISTIC_NAME]] : Statistic
 	{
-		public [[STATISTIC_NAME]](int level = 0) : base(StatisticsData.Instance.GetByName([[STATISTIC_RANGE]]), level) { }
+		public [[STATISTIC_NAME]](int level = 1) : base(StatisticsData.Instance.GetByName([[STATISTIC_RANGE]]), level) { }
 	}
 ";
 
@@ -60,9 +63,11 @@ namespace LRT.Smith.Statistics.Editor
 				panels = new Dictionary<SSWizardPanelType, SSWizardPanel>
 				{
 					{  SSWizardPanelType.Create, new SSWizardPanelCreate(this) },
-					{  SSWizardPanelType.Update, new SSWizardPanelUpdate(this) },
+					{  SSWizardPanelType.Read, new SSWizardPanelRead(this) },
 					{  SSWizardPanelType.Edit, new SSWizardPanelEdit(this) },
+					{  SSWizardPanelType.Settings, new SSWizardPanelSettings(this) },
 				};
+				state = SSWizardPanelType.Read;
 			}
 
 			DrawTopContainer(EditorGUILayout.GetControlRect(false, 50));
@@ -104,7 +109,7 @@ namespace LRT.Smith.Statistics.Editor
 
 			if (IsErrors(out List<string> errors, range))
 			{
-				foreach(string error in errors)
+				foreach (string error in errors)
 				{
 					EditorGUILayout.HelpBox(error, MessageType.Error);
 				}
@@ -125,7 +130,8 @@ namespace LRT.Smith.Statistics.Editor
 				EditorGUILayout.BeginHorizontal();
 				while (resultScrollPositions.Count <= resultScrollCount)
 				{
-					resultScrollPositions.Add(new Vector2());
+					bool secondScroller = resultScrollPositions.Count == 1;
+					resultScrollPositions.Add(secondScroller ? Vector2.one : new Vector2());
 				}
 
 				for (int i = 0; i < resultScrollCount; i++)
@@ -141,10 +147,10 @@ namespace LRT.Smith.Statistics.Editor
 				}
 				EditorGUILayout.EndHorizontal();
 				EditorGUILayout.BeginHorizontal();
+				if (resultScrollCount > 0 && GUILayout.Button("-"))
+					resultScrollCount--;
 				if (GUILayout.Button("+"))
 					resultScrollCount++;
-				if (GUILayout.Button("-"))
-					resultScrollCount--;
 				GUILayout.FlexibleSpace();
 				EditorGUILayout.EndHorizontal();
 			}
@@ -152,6 +158,10 @@ namespace LRT.Smith.Statistics.Editor
 			float CalculateValueForLevel(int level)
 			{
 				float easedValue = range.ease.Evaluate((level - 1) / (float)(range.maxLevel - 1));
+
+				if (range.maxLevel == 1)
+					easedValue = 1;
+
 				float value = Mathf.Lerp(range.minValue, range.maxValue, easedValue);
 
 				return range.valueType == StatisticType.Int ? (int)value : value;
@@ -169,7 +179,6 @@ namespace LRT.Smith.Statistics.Editor
 			{
 				string template = classTemplate
 					.Replace("[[STATISTIC_NAME]]", item.statisticName)
-					.Replace("[[STATISTIC_TYPE]]", StatisticTypeToClassType(item.valueType))
 					.Replace("[[STATISTIC_RANGE]]", $"\"{item.statisticName}\"");
 				classes += template;
 			}
@@ -180,16 +189,6 @@ namespace LRT.Smith.Statistics.Editor
 			EditorUtility.SetDirty(StatisticsData.Instance);
 			AssetDatabase.SaveAssetIfDirty(StatisticsData.Instance);
 			AssetDatabase.Refresh();
-
-			string StatisticTypeToClassType(StatisticType type)
-			{
-				return type switch
-				{
-					StatisticType.Int => "StatsInt",
-					StatisticType.Float => "StatsFloat",
-					_ => throw new NotImplementedException($"Statistic type {nameof(type)} is not implemented.")
-				};
-			}
 		}
 
 		public bool IsErrors(out List<string> errors, StatisticRange range)
@@ -199,11 +198,14 @@ namespace LRT.Smith.Statistics.Editor
 			if (string.IsNullOrEmpty(range.statisticName))
 				errors.Add($"The statistic name should not be empty.");
 
-			if (range.minValue == range.maxValue && range.maxLevel > 0)
+			if (range.minValue == range.maxValue && range.maxLevel > 1)
 				errors.Add($"The min value and max value should not be equal when max level is superior to 1");
 
 			if (range.maxLevel == 0)
 				errors.Add($"Max level should at least be one.");
+
+			if (!CompilerHelper.IsValidCSharpClassName(range.statisticName))
+				errors.Add("The statistic name is not valid for compilation.");
 
 			errors.AddRange(panels[state].GetErrors(range));
 
@@ -212,8 +214,9 @@ namespace LRT.Smith.Statistics.Editor
 
 		private void DrawTopContainer(Rect container)
 		{
-			ShowMenuButton(container.LeftHalf(), "Update", SSWizardPanelType.Update);
-			ShowMenuButton(container.RightHalf(), "Create", SSWizardPanelType.Create);
+			ShowMenuButton(container.SliceH(0.333f, 0), "Update", SSWizardPanelType.Read);
+			ShowMenuButton(container.SliceH(0.333f, 1), "Create", SSWizardPanelType.Create);
+			ShowMenuButton(container.SliceH(0.333f, 2), "Settings", SSWizardPanelType.Settings);
 
 			void ShowMenuButton(Rect right, string label, SSWizardPanelType target)
 			{
@@ -238,7 +241,7 @@ namespace LRT.Smith.Statistics.Editor
 			if (!string.IsNullOrEmpty(panels[state].ActionButtonLabel()) && GUILayout.Button(panels[state].ActionButtonLabel(), GUILayout.Width(150), GUILayout.Height(35)))
 				panels[state].OnActionButton();
 			GUI.enabled = wasEnable;
-			
+
 			if (GUILayout.Button("Exit", GUILayout.Width(150), GUILayout.Height(35)))
 				focusedWindow.Close();
 
@@ -248,9 +251,10 @@ namespace LRT.Smith.Statistics.Editor
 
 		private enum SSWizardPanelType
 		{
-			Update,
+			Read,
 			Create,
 			Edit,
+			Settings,
 		}
 
 		private abstract class SSWizardPanel
@@ -269,9 +273,9 @@ namespace LRT.Smith.Statistics.Editor
 			public abstract List<string> GetErrors(StatisticRange range);
 		}
 
-		private class SSWizardPanelUpdate : SSWizardPanel
+		private class SSWizardPanelRead : SSWizardPanel
 		{
-			public SSWizardPanelUpdate(StatisticSettingsWizard wizard) : base(wizard) { }
+			public SSWizardPanelRead(StatisticSettingsWizard wizard) : base(wizard) { }
 
 			/// <summary>
 			/// <b>Parameters :</b>
@@ -399,7 +403,7 @@ namespace LRT.Smith.Statistics.Editor
 				StatisticsData.Instance.statisticsRange[index] = range;
 
 				wizard.SaveSettings();
-				wizard.state = SSWizardPanelType.Update;
+				wizard.state = SSWizardPanelType.Read;
 				GUI.FocusControl(null);
 			}
 
@@ -409,7 +413,7 @@ namespace LRT.Smith.Statistics.Editor
 			{
 				List<string> errors = new List<string>();
 
-				for(int i = 0; i < StatisticsData.Instance.statisticsRange.Count; i++)
+				for (int i = 0; i < StatisticsData.Instance.statisticsRange.Count; i++)
 				{
 					if (i == index)
 						continue;
@@ -420,6 +424,63 @@ namespace LRT.Smith.Statistics.Editor
 
 				return errors;
 			}
+		}
+
+		private class SSWizardPanelSettings : SSWizardPanel
+		{
+			public SSWizardPanelSettings(StatisticSettingsWizard wizard) : base(wizard) { }
+
+			public override bool ActionButtonIsValid() => false;
+
+			public override string ActionButtonLabel() => "";
+
+			public override List<string> GetErrors(StatisticRange range) => new List<string>();
+
+			public override void OnActionButton() { }
+
+			public override void Show()
+			{
+
+			}
+		}
+	}
+
+	internal static class CompilerHelper
+	{
+		static string[] reservedKeywords = new string[]
+		{
+			"abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char",
+			"checked", "class", "const", "continue", "decimal", "default", "delegate",
+			"do", "double", "else", "enum", "event", "explicit", "extern", "false",
+			"finally", "fixed", "float", "for", "foreach", "goto", "if", "implicit",
+			"in", "int", "interface", "internal", "is", "lock", "long", "namespace",
+			"new", "null", "object", "operator", "out", "override", "params", "private",
+			"protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
+			"short", "sizeof", "stackalloc", "static", "string", "struct", "switch",
+			"this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked",
+			"unsafe", "ushort", "using", "virtual", "void", "volatile", "while"
+		};
+
+		static string pattern = @"^[_a-zA-Z][_a-zA-Z0-9]*$";
+
+		private static bool IsReservedKeyword(string className)
+		{
+			return reservedKeywords.Contains(className);
+		}
+
+		private static bool IsValidClassName(string className)
+		{
+			return Regex.IsMatch(className, pattern);
+		}
+
+		/// <summary>
+		/// Guarantee the class name is valid for csharp compiler. It does not check the project classes.
+		/// </summary>
+		/// <param name="className">The class name to check</param>
+		/// <returns>Weither the class name is valid or not.</returns>
+		public static bool IsValidCSharpClassName(string className)
+		{
+			return !IsReservedKeyword(className) && IsValidClassName(className);
 		}
 	}
 }
