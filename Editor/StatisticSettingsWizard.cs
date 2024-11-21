@@ -29,12 +29,12 @@ namespace LRT.Smith.Statistics.Editor
 		/// <summary>
 		/// Parameters :
 		/// [[STATISTIC_NAME]]  - The name of the statistic following CamelCase
-		/// [[STATISTIC_RANGE]] - Following format: ["key"] where key is target range
 		/// </summary>
 		private const string classTemplate =
 @"	public class [[STATISTIC_NAME]] : Statistic
 	{
-		public [[STATISTIC_NAME]](int level = 1) : base(StatisticsData.Instance.GetByName([[STATISTIC_RANGE]]), level) { }
+		public override string Type => nameof([[STATISTIC_NAME]]);
+		public [[STATISTIC_NAME]](int level = 1) : base(StatisticsData.Instance.GetByName(nameof([[STATISTIC_NAME]])), level) { }
 	}
 ";
 
@@ -183,8 +183,7 @@ namespace LRT.Smith.Statistics
 			foreach (StatisticRange item in StatisticsData.Instance.statisticsRange)
 			{
 				string template = classTemplate
-					.Replace("[[STATISTIC_NAME]]", item.statisticName)
-					.Replace("[[STATISTIC_RANGE]]", $"\"{item.statisticName}\"");
+					.Replace("[[STATISTIC_NAME]]", item.statisticName);
 				classes += template;
 			}
 

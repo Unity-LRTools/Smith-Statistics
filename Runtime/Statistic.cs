@@ -7,7 +7,7 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
-	public class Statistic : IFormattable, IComparable
+	public abstract class Statistic : IFormattable, IComparable
 	{
 		/// <summary>
 		/// Emitted when the value has been changed.
@@ -23,6 +23,8 @@ namespace LRT.Smith.Statistics
 		/// The level of this statistic used to calculate his real value.
 		/// </summary>
 		public int Level { get => currentLevel; set => SetCurrentLevel(value); }
+
+		public abstract string Type { get; }
 
 		/// <summary>
 		/// The minimum value for this statistic when level equal 0.
