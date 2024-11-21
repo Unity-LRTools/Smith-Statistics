@@ -24,7 +24,7 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		public int Level { get => currentLevel; set => SetCurrentLevel(value); }
 
-		public string NameKey { get => name; }
+		public string Name { get => name; }
 
 		public string ID { get => id; }
 
@@ -93,6 +93,17 @@ namespace LRT.Smith.Statistics
 			return LerpValue(ease.Evaluate(level - 1 / maxLevel - 1));
 		}
 
+		/// <returns>
+		/// The value calculated, can emit event if value has been changed
+		/// </returns>
+		protected virtual float GetValue()
+		{
+			if (!value.HasValue)
+				UpdateValue();
+
+			return valueType == StatisticType.Int ? (int)value.Value : value.Value;
+		}
+
 		/// <summary>
 		/// Ask childs to lerp the value
 		/// </summary>
@@ -101,17 +112,6 @@ namespace LRT.Smith.Statistics
 		private float LerpValue(float easedLevel)
 		{
 			return Mathf.Lerp(minValue, maxValue, easedLevel);
-		}
-
-		/// <returns>
-		/// The value calculated, can emit event if value has been changed
-		/// </returns>
-		private float GetValue()
-		{
-			if (!value.HasValue)
-				UpdateValue();
-
-			return valueType == StatisticType.Int ? (int)value.Value : value.Value;
 		}
 
 		/// <summary>

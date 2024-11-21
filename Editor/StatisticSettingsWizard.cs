@@ -61,7 +61,7 @@ namespace LRT.Smith.Statistics
 			wizard.titleContent = new GUIContent("Statistics", EditorGUIUtility.IconContent("CustomTool@2x").image);
 		}
 
-		void OnGUI()
+		private void OnEnable()
 		{
 			if (panels == null)
 			{
@@ -75,6 +75,17 @@ namespace LRT.Smith.Statistics
 				state = SSWizardPanelType.Read;
 			}
 
+			if (settings == null)
+			{
+				settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Packages/StatsSmith/Editor/StatisticSettings.asset");
+
+				if (settings == null)
+					settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Assets/StatsSmith/Editor/StatisticSettings.asset");
+			}
+		}
+
+		void OnGUI()
+		{
 			DrawTopContainer(EditorGUILayout.GetControlRect(false, 50));
 
 			panels[state].Show();
@@ -96,7 +107,11 @@ namespace LRT.Smith.Statistics
 			if (range == null)
 				return;
 
+			bool wasGuiEnabled = GUI.enabled;
+			GUI.enabled = settings.developerMode;
 			range.statisticID = EditorGUILayout.TextField("Statistic id", range.statisticID);
+			GUI.enabled = wasGuiEnabled;
+
 			range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
 			range.name = EditorGUILayout.TextField("Statistic name", range.name);
 			range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
@@ -221,9 +236,17 @@ namespace LRT.Smith.Statistics
 
 		private void DrawTopContainer(Rect container)
 		{
-			ShowMenuButton(container.SliceH(0.333f, 0), "Update", SSWizardPanelType.Read);
-			ShowMenuButton(container.SliceH(0.333f, 1), "Create", SSWizardPanelType.Create);
-			ShowMenuButton(container.SliceH(0.333f, 2), "Settings", SSWizardPanelType.Settings);
+			if (settings.developerMode)
+			{
+				ShowMenuButton(container.SliceH(0.333f, 0), "Read", SSWizardPanelType.Read);
+				ShowMenuButton(container.SliceH(0.333f, 1), "Create", SSWizardPanelType.Create);
+				ShowMenuButton(container.SliceH(0.333f, 2), "Settings", SSWizardPanelType.Settings);
+			}
+			else
+			{
+				ShowMenuButton(container.SliceH(0.5f, 0), "Read", SSWizardPanelType.Read);
+				ShowMenuButton(container.SliceH(0.5f, 1), "Settings", SSWizardPanelType.Settings);
+			}
 
 			void ShowMenuButton(Rect right, string label, SSWizardPanelType target)
 			{
@@ -327,7 +350,7 @@ namespace LRT.Smith.Statistics
 					CustomGUIUtility.DrawBorder(rect, borderColor, 2);
 
 					// Create delete button
-					if (GUI.Button(rect.MoveX(rect.width - 23).MoveY(3).SetWidth(22).SetHeight(22), EditorGUIUtility.IconContent("TreeEditor.Trash"), npButton))
+					if (wizard.settings.developerMode && GUI.Button(rect.MoveX(rect.width - 23).MoveY(3).SetWidth(22).SetHeight(22), EditorGUIUtility.IconContent("TreeEditor.Trash"), npButton))
 						DeleteStatistic(range);
 
 					// Prepare button before shrinking
@@ -451,7 +474,6 @@ namespace LRT.Smith.Statistics
 
 		private class SSWizardPanelSettings : SSWizardPanel
 		{
-			string exportPath = "Assets/";
 			TextAsset file;
 
 			public SSWizardPanelSettings(StatisticSettingsWizard wizard) : base(wizard) { }
@@ -466,20 +488,16 @@ namespace LRT.Smith.Statistics
 
 			public override void Show()
 			{
-				exportPath = EditorGUILayout.TextField("Export Path", exportPath);
-				DrawMiddleButton("Export statistics to .json", ExportToJson);
-
+				wizard.settings.exportPath = EditorGUILayout.TextField("Export Path", wizard.settings.exportPath);
+				DrawButton("Export statistics to .json", ExportToJson);
+				GUILayout.Space(10);
 				file = (TextAsset)EditorGUILayout.ObjectField("Import File", file, typeof(TextAsset), false);
-				DrawMiddleButton("Import statistics from .json", ImportFromJson);
+				DrawButton("Import statistics from .json", ImportFromJson);
 
-				void DrawMiddleButton(string label, Action action)
+				void DrawButton(string label, Action action)
 				{
-					GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-					if (GUILayout.Button(label, GUILayout.Width(200), GUILayout.Height(40)))
+					if (GUILayout.Button(label, GUILayout.Width(200), GUILayout.Height(35)))
 						action();
-					GUILayout.FlexibleSpace();
-					GUILayout.EndHorizontal();
 				}
 			}
 
@@ -488,7 +506,7 @@ namespace LRT.Smith.Statistics
 				StatisticsRangeWrapper wrapper = new StatisticsRangeWrapper() { items = StatisticsData.Instance.statisticsRange };
 				string json = JsonUtility.ToJson(wrapper);
 
-				File.WriteAllText(Path.Combine(exportPath, "Smith_StatisticsData.json"), json);
+				File.WriteAllText(Path.Combine(wizard.settings.exportPath, "Smith_StatisticsData.json"), json);
 				AssetDatabase.Refresh();
 			}
 
