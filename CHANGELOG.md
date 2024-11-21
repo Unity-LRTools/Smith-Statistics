@@ -1,3 +1,8 @@
+## [0.5.0] - 17/11/2024
+### Save that shit - Lil Peep
+- Remove statistic working without being abstract
+- Add very basic save and load system
+
 ## [0.4.0] - 17/11/2024
 ### Better tool
 - Implement json export and import in settings panle of editor window
