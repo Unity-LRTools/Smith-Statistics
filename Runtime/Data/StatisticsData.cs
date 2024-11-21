@@ -7,9 +7,9 @@ namespace LRT.Smith.Statistics
     {
         [ReadOnly] public List<StatisticRange> statisticsRange = new List<StatisticRange>();
 
-        public StatisticRange GetByName(string name)
+        public StatisticRange GetByID(string id)
         {
-            return statisticsRange.FirstOrDefault(sr => sr.statisticName == name);
+            return statisticsRange.FirstOrDefault(sr => sr.statisticID == id);
         }
     }
 }

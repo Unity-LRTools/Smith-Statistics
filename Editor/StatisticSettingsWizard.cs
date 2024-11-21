@@ -28,13 +28,13 @@ namespace LRT.Smith.Statistics.Editor
 		#region Template
 		/// <summary>
 		/// Parameters :
-		/// [[STATISTIC_NAME]]  - The name of the statistic following CamelCase
+		/// [[STATISTIC_ID]]  - The name of the statistic following CamelCase
 		/// </summary>
 		private const string classTemplate =
-@"	public class [[STATISTIC_NAME]] : Statistic
+@"	public class [[STATISTIC_ID]] : Statistic
 	{
-		public override string Type => nameof([[STATISTIC_NAME]]);
-		public [[STATISTIC_NAME]](int level = 1) : base(StatisticsData.Instance.GetByName(nameof([[STATISTIC_NAME]])), level) { }
+		public override string Type => nameof([[STATISTIC_ID]]);
+		public [[STATISTIC_ID]](int level = 1) : base(StatisticsData.Instance.GetByName(nameof([[STATISTIC_ID]])), level) { }
 	}
 ";
 
@@ -96,8 +96,9 @@ namespace LRT.Smith.Statistics
 			if (range == null)
 				return;
 
-			range.statisticName = EditorGUILayout.TextField("Statistic name", range.statisticName);
+			range.statisticID = EditorGUILayout.TextField("Statistic id", range.statisticID);
 			range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
+			range.name = EditorGUILayout.TextField("Statistic name", range.name);
 			range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
 			range.maxLevel = EditorGUILayout.IntField("Max Level", Mathf.Max(1, range.maxLevel));
 
@@ -183,7 +184,7 @@ namespace LRT.Smith.Statistics
 			foreach (StatisticRange item in StatisticsData.Instance.statisticsRange)
 			{
 				string template = classTemplate
-					.Replace("[[STATISTIC_NAME]]", item.statisticName);
+					.Replace("[[STATISTIC_ID]]", item.statisticID);
 				classes += template;
 			}
 
@@ -201,8 +202,8 @@ namespace LRT.Smith.Statistics
 		{
 			errors = new List<string>();
 
-			if (string.IsNullOrEmpty(range.statisticName))
-				errors.Add($"The statistic name should not be empty.");
+			if (string.IsNullOrEmpty(range.statisticID))
+				errors.Add($"The statistic id should not be empty.");
 
 			if (range.minValue == range.maxValue && range.maxLevel > 1)
 				errors.Add($"The min value and max value should not be equal when max level is superior to 1");
@@ -210,8 +211,8 @@ namespace LRT.Smith.Statistics
 			if (range.maxLevel == 0)
 				errors.Add($"Max level should at least be one.");
 
-			if (!CompilerHelper.IsValidCSharpClassName(range.statisticName))
-				errors.Add("The statistic name is not valid for compilation.");
+			if (!CompilerHelper.IsValidCSharpClassName(range.statisticID))
+				errors.Add("The statistic id is not valid for compilation.");
 
 			errors.AddRange(panels[state].GetErrors(range));
 
@@ -315,7 +316,7 @@ namespace LRT.Smith.Statistics
 					rect = rect.MoveY((i / nbCol) * (height + space));
 
 					// Prepare variables
-					string name = $"{range.statisticName}";
+					string id = $"{range.statisticID}";
 					string type = $"{range.valueType}";
 					string values = $"1 -> [{range.minValue}..{range.maxValue}] <- {range.maxLevel}";
 					string ease = $"Growth: {range.ease}";
@@ -337,7 +338,7 @@ namespace LRT.Smith.Statistics
 					rect = rect.Shrink(3);
 
 					// Draw field
-					EditorGUI.LabelField(rect.SetHeight(EditorGUIUtility.singleLineHeight), name, centeredBoldLabel);
+					EditorGUI.LabelField(rect.SetHeight(EditorGUIUtility.singleLineHeight), id, centeredBoldLabel);
 					EditorGUI.LabelField(RectUtility.lastRect, type, leftLabel);
 					EditorGUI.LabelField(RectUtility.lastRect.MoveY(20), values, centeredLabel);
 					EditorGUI.LabelField(RectUtility.lastRect.MoveY(20), ease, centeredLabel);
@@ -347,7 +348,7 @@ namespace LRT.Smith.Statistics
 
 				void DeleteStatistic(StatisticRange range)
 				{
-					if (EditorUtility.DisplayDialog($"Delete {range.statisticName}", $"Do you really want to delete the statistic {range.statisticName} ?",
+					if (EditorUtility.DisplayDialog($"Delete {range.statisticID}", $"Do you really want to delete the statistic {range.statisticID} ?",
 						"Yes",
 						"Oh, no !"))
 					{
@@ -398,8 +399,8 @@ namespace LRT.Smith.Statistics
 			{
 				List<string> errors = new List<string>();
 
-				if (StatisticsData.Instance.GetByName(range.statisticName) != null)
-					errors.Add($"The statistic name '{range.statisticName}' is already taken.");
+				if (StatisticsData.Instance.GetByID(range.statisticID) != null)
+					errors.Add($"The statistic name '{range.statisticID}' is already taken.");
 
 				return errors;
 			}
@@ -440,8 +441,8 @@ namespace LRT.Smith.Statistics
 					if (i == index)
 						continue;
 
-					if (editedRange.statisticName == StatisticsData.Instance.statisticsRange[i].statisticName)
-						errors.Add($"The statistic name '{editedRange.statisticName}' is already taken.");
+					if (editedRange.statisticID == StatisticsData.Instance.statisticsRange[i].statisticID)
+						errors.Add($"The statistic name '{editedRange.statisticID}' is already taken.");
 				}
 
 				return errors;

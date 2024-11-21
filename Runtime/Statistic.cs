@@ -24,6 +24,8 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		public int Level { get => currentLevel; set => SetCurrentLevel(value); }
 
+		public string NameKey { get => name; }
+
 		public abstract string Type { get; }
 
 		/// <summary>
@@ -46,6 +48,11 @@ namespace LRT.Smith.Statistics
 		/// The level minimum is 1.
 		/// </summary>
 		private int currentLevel;
+
+		/// <summary>
+		/// The display name of the statistic
+		/// </summary>
+		private string name;
 
 		/// <summary>
 		/// The normalized level of this item [0..1].
@@ -135,6 +142,7 @@ namespace LRT.Smith.Statistics
 		{
 			maxLevel = range.maxLevel;
 			ease = range.ease;
+			name = range.name;
 			minValue = range.minValue;
 			maxValue = range.maxValue;
 			valueType = range.valueType;
