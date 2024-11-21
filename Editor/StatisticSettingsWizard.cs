@@ -58,7 +58,8 @@ namespace LRT.Smith.Statistics
 		[MenuItem("Smith/Statistics")]
 		public static void ShowWindow()
 		{
-			StatisticSettingsWizard wizard = GetWindow<StatisticSettingsWizard>("Statistics Editor");
+			StatisticSettingsWizard wizard = GetWindow<StatisticSettingsWizard>("Statistics");
+			wizard.titleContent = new GUIContent("Statistics", EditorGUIUtility.IconContent("CustomTool@2x").image);
 		}
 
 		void OnGUI()
