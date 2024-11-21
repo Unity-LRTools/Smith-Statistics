@@ -1,3 +1,7 @@
+## [0.4.0] - 17/11/2024
+### Better tool
+- Implement json export and import in settings panle of editor window
+
 ## [0.3.1] - 17/11/2024
 ### Better tool
 - Implement result preview when editing or creating a new statistic
