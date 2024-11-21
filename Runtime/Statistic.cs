@@ -7,17 +7,17 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
-	public abstract class Statistic<T> where T : struct, IComparable, IComparable<T>, IEquatable<T>, IFormattable
+	public class Statistic : IFormattable, IComparable
 	{
 		/// <summary>
 		/// Emitted when the value has been changed.
 		/// </summary>
-		public event Action<Statistic<T>> OnValueChanged;
+		public event Action<Statistic> OnValueChanged;
 
 		/// <summary>
 		/// The current value of the statistic based on his level.
 		/// </summary>
-		public T Value { get => GetValue(); }
+		public float Value { get => GetValue(); }
 
 		/// <summary>
 		/// The level of this statistic used to calculate his real value.
@@ -27,17 +27,17 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The minimum value for this statistic when level equal 0.
 		/// </summary>
-		protected T minValue;
+		protected float minValue;
 
 		/// <summary>
 		/// The maximum value for this statistic when level equal the maximum level reachable.
 		/// </summary>
-		protected T maxValue;
+		protected float maxValue;
 
 		/// <summary>
 		/// The ease that will evaluate the value of the statistic.
 		/// </summary>
-		private Easing.Ease ease;
+		private Ease ease;
 
 		/// <summary>
 		/// The level of this statistic used to calculate his real value.
@@ -48,8 +48,8 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The normalized level of this item [0..1].
 		/// </summary>
-		private int NormalizedLevel => currentLevel / maxLevel;
-		
+		private int NormalizedLevel => maxLevel == 1 ? 1 : currentLevel / maxLevel;
+
 		/// <summary>
 		/// The maximum level this statistic can reach.
 		/// </summary>
@@ -58,9 +58,20 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The buffered value used to avoid recalculate the value each time
 		/// </summary>
-		private T? value;
+		private float? value;
 
-		public T? GetValueAt(int level)
+		/// <summary>
+		/// The type of the statistic to ensure int value stay int even in float class
+		/// </summary>
+		private StatisticType valueType;
+
+		/// <summary>
+		/// Return the value of this statistic for a specific level
+		/// </summary>
+		/// <param name="level">Desired level</param>
+		/// <returns>The value for the desired level</returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public float? GetValueAt(int level)
 		{
 			if (level > maxLevel)
 				throw new ArgumentOutOfRangeException($"Target level '{level}' is out of range");
@@ -73,24 +84,20 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		/// <param name="easedLevel">The value t lerp's value</param>
 		/// <returns>The final value of this statistic</returns>
-		protected abstract T LerpValue(float easedLevel);
-
-		/// <summary>
-		/// Initialize the range value without passing by constructor because we
-		/// calculate value at the end of parent class constructor
-		/// </summary>
-		/// <param name="range">The range data</param>
-		protected abstract void InitMinMaxValue(StatisticRange range);
+		private float LerpValue(float easedLevel)
+		{
+			return Mathf.Lerp(minValue, maxValue, easedLevel);
+		}
 
 		/// <returns>
 		/// The value calculated, can emit event if value has been changed
 		/// </returns>
-		private T GetValue()
+		private float GetValue()
 		{
 			if (!value.HasValue)
 				UpdateValue();
 
-			return value.Value;
+			return valueType == StatisticType.Int ? (int)value.Value : value.Value;
 		}
 
 		/// <summary>
@@ -114,7 +121,7 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		private void UpdateValue()
 		{
-			T? oldValue = value;
+			float? oldValue = value;
 
 			value = LerpValue(ease.Evaluate(NormalizedLevel));
 
@@ -126,57 +133,29 @@ namespace LRT.Smith.Statistics
 		{
 			maxLevel = range.maxLevel;
 			ease = range.ease;
-			SetCurrentLevel(level);
-		}
+			minValue = range.minValue;
+			maxValue = range.maxValue;
+			valueType = range.valueType;
+			SetCurrentLevel(Mathf.Max(1, level));
+		} 
 
 		#region Operator override
-		public static implicit operator T(Statistic<T> stat) => stat.Value;
+		public static implicit operator float(Statistic stat) => stat.Value;
+		public static implicit operator int(Statistic stat)
+		{
+			if (stat.valueType != StatisticType.Int)
+				throw new InvalidCastException();
+
+			return (int)stat.value;
+		}
 		#endregion
 
 		#region System interfaces implementation
+		public int CompareTo(float other) => Value.CompareTo(other);
+		public bool Equals(float other) => Value.Equals(other);
 		public int CompareTo(object obj) => Value.CompareTo(obj);
-		public int CompareTo(T other) => Value.CompareTo(other);
-		public bool Equals(T other) => Value.Equals(other);
 		public string ToString(string format, IFormatProvider formatProvider) => Value.ToString(format, formatProvider);
 		#endregion
-	}
-
-	/// <summary>
-	/// Represent a statistic that is modified by his level.
-	/// </summary>
-	public class StatsInt : Statistic<int>
-	{
-		public StatsInt(StatisticRange range, int level) : base(range, level) { }
-		
-		protected sealed override void InitMinMaxValue(StatisticRange range)
-		{
-			minValue = (int)range.minValue;
-			maxValue = (int)range.maxValue;
-		}
- 
-		protected sealed override int LerpValue(float easedLevel)
-		{
-			return Mathf.RoundToInt(Mathf.Lerp(minValue, maxValue, easedLevel));
-		}
-	}
-
-	/// <summary>
-	/// Represent a statistic that is modified by his level.
-	/// </summary>
-	public class StatsFloat : Statistic<float>
-	{
-		public StatsFloat(StatisticRange range, int level) : base(range, level) { }
-
-		protected sealed override void InitMinMaxValue(StatisticRange range)
-		{
-			minValue = range.minValue;
-			maxValue = range.maxValue;
-		}
-
-		protected sealed override float LerpValue(float easedLevel)
-		{
-			return Mathf.Lerp(minValue, maxValue, easedLevel);
-		}
 	}
 }
 
