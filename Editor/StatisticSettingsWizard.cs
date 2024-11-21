@@ -33,7 +33,6 @@ namespace LRT.Smith.Statistics.Editor
 		private const string classTemplate =
 @"	public class [[STATISTIC_ID]] : Statistic
 	{
-		public override string Type => nameof([[STATISTIC_ID]]);
 		public [[STATISTIC_ID]](int level = 1) : base(StatisticsData.Instance.GetByID(nameof([[STATISTIC_ID]])), level) { }
 	}
 ";

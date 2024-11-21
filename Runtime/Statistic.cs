@@ -7,7 +7,7 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
-	public abstract class Statistic : IFormattable, IComparable
+	public class Statistic : IFormattable, IComparable
 	{
 		/// <summary>
 		/// Emitted when the value has been changed.
@@ -26,7 +26,7 @@ namespace LRT.Smith.Statistics
 
 		public string NameKey { get => name; }
 
-		public abstract string Type { get; }
+		public string ID { get => id; }
 
 		/// <summary>
 		/// The minimum value for this statistic when level equal 0.
@@ -53,6 +53,11 @@ namespace LRT.Smith.Statistics
 		/// The display name of the statistic
 		/// </summary>
 		private string name;
+
+		/// <summary>
+		/// The type of this statistic
+		/// </summary>
+		private string id;
 
 		/// <summary>
 		/// The normalized level of this item [0..1].
@@ -146,8 +151,11 @@ namespace LRT.Smith.Statistics
 			minValue = range.minValue;
 			maxValue = range.maxValue;
 			valueType = range.valueType;
+			id = range.statisticID;
 			SetCurrentLevel(Mathf.Max(1, level));
-		} 
+		}
+
+		internal Statistic(StatisticSave save) : this(StatisticsData.Instance.GetByID(save.id), save.level) { }
 
 		#region Operator override
 		public static implicit operator float(Statistic stat) => stat.Value;

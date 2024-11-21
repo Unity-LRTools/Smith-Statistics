@@ -12,7 +12,7 @@ namespace LRT.Smith.Statistics
         /// <returns>A sum</returns>
         public float Sum(string type)
         {
-            return this.Where(s => s.Type == type).Sum(s => s.Value);
+            return this.Where(s => s.ID == type).Sum(s => s.Value);
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace LRT.Smith.Statistics
         /// <returns>The count of different statistic</returns>
         public int CountStatistic()
         {
-            return this.GroupBy(s => s.Type).Count();
+            return this.GroupBy(s => s.ID).Count();
         }
     }
 }
