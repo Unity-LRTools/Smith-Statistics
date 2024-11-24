@@ -116,28 +116,6 @@ namespace LRT.Smith.Statistics
 		}
 
 		/// <summary>
-		/// Set the min value for clamping.
-		/// </summary>
-		/// <param name="min">The min value</param>
-		public void SetMin(float min)
-		{
-			clampMin = min;
-		}
-
-		public void ResetMin() => clampMin = float.MinValue;
-
-		/// <summary>
-		/// Set the max value for clamping.
-		/// </summary>
-		/// <param name="max">The max value</param>
-		public void SetMax(float max)
-		{
-			clampMax = max;
-		}
-
-		public void ResetMax() => clampMax = float.MaxValue;
-
-		/// <summary>
 		/// Set the fixed value.
 		/// </summary>
 		/// <param name="value">The fixed value</param>

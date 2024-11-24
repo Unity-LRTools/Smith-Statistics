@@ -14,6 +14,10 @@ namespace LRT.Smith.Statistics
 		public int maxLevel;
 		public float maxValue;
 		public float minValue;
+		public bool isModdable;
+		public bool isClamp;
+		public float clampMin;
+		public float clampMax;
 
 		public StatisticRange() { }
 
@@ -25,6 +29,8 @@ namespace LRT.Smith.Statistics
 			maxLevel = range.maxLevel;
 			maxValue = range.maxValue;
 			minValue = range.minValue;
+			clampMin = range.clampMin;
+			clampMax = range.clampMax;
 		}
 	}
 }

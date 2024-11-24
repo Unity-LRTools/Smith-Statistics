@@ -29,9 +29,10 @@ namespace LRT.Smith.Statistics.Editor
 		/// <summary>
 		/// Parameters :
 		/// [[STATISTIC_ID]]  - The name of the statistic following CamelCase
+		/// [[STATISTIC_CLASS]]  - The class of this statistic if it's moddable or not
 		/// </summary>
 		private const string classTemplate =
-@"	public class [[STATISTIC_ID]] : Statistic
+@"	public class [[STATISTIC_ID]] : [[STATISTIC_CLASS]]
 	{
 		public [[STATISTIC_ID]](int level = 1) : base(StatisticsData.Instance.GetByID(nameof([[STATISTIC_ID]])), level) { }
 	}
@@ -107,12 +108,15 @@ namespace LRT.Smith.Statistics
 			if (range == null)
 				return;
 
+			GUIContent modGUIContent = new GUIContent("Is Moddable", "Moddable statistic can be modified using offsets and percentage.");
+
 			bool wasGuiEnabled = GUI.enabled;
 			GUI.enabled = settings.developerMode;
 			range.statisticID = EditorGUILayout.TextField("Statistic id", range.statisticID);
 			GUI.enabled = wasGuiEnabled;
 
 			range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
+			range.isModdable = EditorGUILayout.Toggle(modGUIContent, range.isModdable);
 			range.name = EditorGUILayout.TextField("Statistic name", range.name);
 			range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
 			range.maxLevel = EditorGUILayout.IntField("Max Level", Mathf.Max(1, range.maxLevel));
@@ -126,6 +130,24 @@ namespace LRT.Smith.Statistics
 			{
 				range.minValue = EditorGUILayout.FloatField("Min Value", range.minValue);
 				range.maxValue = EditorGUILayout.FloatField("Max Value", range.maxValue);
+			}
+
+			if (range.isModdable)
+			{
+				range.isClamp = EditorGUILayout.Toggle("Is Clamp", range.isClamp);
+				if (range.isClamp)
+				{
+					if (range.valueType == StatisticType.Int)
+					{
+						range.clampMin = EditorGUILayout.IntField("Clamp Min", (int)range.clampMin);
+						range.clampMax = EditorGUILayout.IntField("Clamp Max", (int)range.clampMax);
+					}
+					else
+					{
+						range.clampMin = EditorGUILayout.FloatField("Clamp Min", range.clampMin);
+						range.clampMax = EditorGUILayout.FloatField("Clamp Max", range.clampMax);
+					}
+				}
 			}
 
 			if (IsErrors(out List<string> errors, range))
@@ -198,8 +220,15 @@ namespace LRT.Smith.Statistics
 
 			foreach (StatisticRange item in StatisticsData.Instance.statisticsRange)
 			{
+				if (!item.isClamp)
+				{
+					item.clampMin = float.MinValue;
+					item.clampMax = float.MaxValue;
+				}
+
 				string template = classTemplate
-					.Replace("[[STATISTIC_ID]]", item.statisticID);
+					.Replace("[[STATISTIC_ID]]", item.statisticID)
+					.Replace("[[STATISTIC_CLASS]]", item.isModdable ? nameof(ModStatistic) : nameof(Statistic));
 				classes += template;
 			}
 
