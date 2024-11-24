@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e9f993e657ad224880229790d5d5c81, type: 3}
   m_Name: StatisticSettings
   m_EditorClassIdentifier: 
-  exportPath: 
-  developerMode: 
+  exportPath: Assets/
+  developerMode: 0
