@@ -89,5 +89,15 @@ Extends `Statistic` to support modifications such as offsets, percentages, and c
 |`void RemoveFixedPercentage()` | Removes the fixed percentage multiplier.|
 
 ## Examples
-### Usage
-### Saving
+### Simple usage
+An example where we set the level of the stastic then get his value.
+```csharp
+public void Example() 
+{
+    Power power = new Power();
+    power.Level = 4;
+    Debug.Log(power);
+}
+```
+
+### Save & Load
