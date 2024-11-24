@@ -62,7 +62,7 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The normalized level of this item [0..1].
 		/// </summary>
-		private int NormalizedLevel => maxLevel == 1 ? 1 : currentLevel / maxLevel;
+		private float NormalizedLevel => maxLevel == 1 ? 1 : currentLevel / (float)maxLevel;
 
 		/// <summary>
 		/// The maximum level this statistic can reach.
@@ -140,7 +140,7 @@ namespace LRT.Smith.Statistics
 			value = LerpValue(ease.Evaluate(NormalizedLevel));
 
 			if (!oldValue.Equals(value))
-				OnValueChanged.Invoke(this);
+				OnValueChanged?.Invoke(this);
 		}
 
 		protected Statistic(StatisticRange range, int level = 1)

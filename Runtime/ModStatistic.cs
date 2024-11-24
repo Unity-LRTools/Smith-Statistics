@@ -41,8 +41,8 @@ namespace LRT.Smith.Statistics
 		public float? fixedValue { get; private set; }
 		public float? fixedPercentage { get; private set; }
 
-		private List<Modifier> offsets;
-		private List<Modifier> percentages;
+		private List<Modifier> offsets = new List<Modifier>();
+		private List<Modifier> percentages = new List<Modifier>();
 
 		protected ModStatistic(StatisticRange range, int level = 1) : base(range, level)
 		{
