@@ -2,7 +2,92 @@
 StatsSmith is an easy-to-use system for managing equipment statistics in Unity. Quickly set up custom statistics with a flexible, lightweight tool.
 
 ## How to install
-WIP
+Go to your unity's root project.\
+Under the folder `Packages` open the file `Manifest.json`.\
+Add the package and his dependencies to the project :
+```json
+{
+  "dependencies": {
+    ...
+    "com.lrtools.utility":"https://github.com/Unity-LRTools/Utility.git",
+    "com.lrtools.easing":"https://github.com/Unity-LRTools/Easing.git",
+    "com.lrtools.smith.statistics":"https://github.com/Unity-LRTools/Smith-Statistics.git",
+  }
+}
+```
 
 ## Documentation
-WIP
+
+### Editor window
+You'll find the editor in the menu item of unity main window under `Smith > Statistic`.
+It allow you to create new statistic, update them, or modify the settings of the tool.
+
+### Statistic creation properties
+The table below outlines the configurable properties for statistics in the system.
+
+| **Property**|**Description**|
+|--|------|
+| **Statistic ID**| A unique identifier assigned to each statistic. This ID is also used as the class name for the generated property.|
+| **Value Type** | Specifies the underlying data type for the statistic. Supported types include `int` and `float`.|
+| **Is Moddable**| Indicates whether this statistic supports external modifications. Refer to the **ModStatistic** section for more details.|
+| **Statistic Name**| The human-readable name or localization key associated with this statistic.|
+| **Growth**| Determines the growth behavior of the statistic, leveraging common easing curves for dynamic scaling.|
+| **Max Level**| Specifies the maximum allowable level for the statistic.|
+| **Min Value**| Defines the value of the statistic at its minimum level (set to `1`).|
+| **Max Value**| Defines the value of the statistic at its maximum level.|
+| **Is Clamp**| Enables clamping to restrict the statistic’s value within defined bounds, if modifications are allowed.|
+| **Clamp Min**| Specifies the minimum value limit for the statistic when clamping is enabled.|
+| **Clamp Max**| Specifies the maximum value limit for the statistic when clamping is enabled.|
+
+## API Documentation
+### Statistic Class
+
+Represents a statistic that dynamically changes based on its level.
+
+### Events
+| **Name**| **Description**|
+|-------------------|-------------------------------------------------------------------------------|
+| `OnValueChanged` | Triggered whenever the statistic's value changes. Provides the updated statistic. |
+
+### Properties
+| **Name** | **Type** | **Description**|
+|-----------------|------------|---------------------------------------------------------------------------------|
+| `ID` | `string` | A unique identifier representing the type of statistic.|
+| `Name` | `string` | The display name or localization key of the statistic.|
+| `Level` | `int` | The current level of the statistic. Changing this property recalculates its value.|
+| `Value` | `float` | Gets the current calculated value of the statistic based on its level.|
+
+### Methods
+| **Signature** | **Description** |
+|--------------------------------------|---------------------------------------------------------------------|
+| `float? GetValueAt(int level)` | Returns the statistic's value at a specific level. Throws an exception if the level is out of range. |
+
+## Mod Statistic
+
+Extends `Statistic` to support modifications such as offsets, percentages, and clamping. Allows for precise control over value adjustments through modifiers.
+
+### Properties
+| **Name** | **Type** | **Description** |
+|---------------------|--------------------------|----------------------------------------------|
+| `Offsets` | `IReadOnlyList<Modifier>`| A list of offset modifiers applied to the statistic.                           |
+| `Percentages` | `IReadOnlyList<Modifier>`| A list of percentage modifiers applied to the statistic.                       |
+| `clampMin` | `float` | The minimum value the statistic can reach after modifications.                 |
+| `clampMax` | `float` | The maximum value the statistic can reach after modifications.                 |
+| `fixedValue` | `float?` | A fixed value overriding all other calculations.                               |
+| `fixedPercentage` | `float?` | A fixed percentage multiplier overriding all other calculations, except fixed value.|
+
+### Methods
+| **Signature** | **Description**|
+|---------|---------------------------------------|
+|`void AddOffset(float value, string identifier)` | Adds an offset modifier. Can be positive or negative.|
+|`void RemoveOffset(string identifier)`| Removes an offset modifier by its identifier.|
+|`void AddPercentage(float value, string identifier)` | Adds a percentage modifier. Throws an exception if the value is 0.|
+|`void RemovePercentage(string identifier)` | Removes a percentage modifier by its identifier.|
+|`void SetFixedValue(float value)` | Sets a fixed value for the statistic, overriding other calculations.|
+|`void RemoveFixedValue()` | Removes the fixed value, reverting to normal calculations.|
+|`void SetFixedPercentage(float value)` | Sets a fixed percentage multiplier, overriding other calculations.|
+|`void RemoveFixedPercentage()` | Removes the fixed percentage multiplier.|
+
+## Examples
+### Usage
+### Saving
