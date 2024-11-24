@@ -29,6 +29,8 @@ namespace LRT.Smith.Statistics
 			maxLevel = range.maxLevel;
 			maxValue = range.maxValue;
 			minValue = range.minValue;
+			isModdable = range.isModdable;
+			isClamp = range.isClamp;
 			clampMin = range.clampMin;
 			clampMax = range.clampMax;
 		}
