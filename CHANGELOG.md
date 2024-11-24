@@ -1,3 +1,8 @@
+## [0.6.0] - 17/11/2024
+### Moddable statistics & developper mode
+- Add and implement moddable statistic including save system
+- Add developper mode and default value for statistic settings in editor
+
 ## [0.5.0] - 17/11/2024
 ### Save that shit - Lil Peep
 - Remove statistic working without being abstract
