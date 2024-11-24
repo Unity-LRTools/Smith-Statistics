@@ -79,10 +79,10 @@ namespace LRT.Smith.Statistics
 
 			if (settings == null)
 			{
-				settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Packages/StatsSmith/Editor/StatisticSettings.asset");
+				settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Packages/Smith-Statistics/Editor/StatisticSettings.asset");
 
 				if (settings == null)
-					settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Assets/StatsSmith/Editor/StatisticSettings.asset");
+					settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Assets/Smith-Statistics/Editor/StatisticSettings.asset");
 			}
 		}
 

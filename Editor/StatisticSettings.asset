@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: StatisticSettings
   m_EditorClassIdentifier: 
   exportPath: Assets/
-  developerMode: 0
+  developerMode: 1
