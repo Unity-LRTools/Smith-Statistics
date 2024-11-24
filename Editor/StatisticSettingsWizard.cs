@@ -22,6 +22,7 @@ namespace LRT.Smith.Statistics.Editor
 		const string folderPath = "Assets/Scripts/Smith";
 		readonly string filePath = Path.Combine(folderPath, "Statistics.cs");
 
+		Vector2 scrollPosition; //Scroll position for whole window
 		List<Vector2> resultScrollPositions = new List<Vector2>();
 		int resultScrollCount = 1;
 
@@ -89,7 +90,9 @@ namespace LRT.Smith.Statistics
 		{
 			DrawTopContainer(EditorGUILayout.GetControlRect(false, 50));
 
+			scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 			panels[state].Show();
+			EditorGUILayout.EndScrollView();
 
 			DrawBottomContainer();
 		}
@@ -345,11 +348,13 @@ namespace LRT.Smith.Statistics
 
 			public override void Show()
 			{
-				Rect startRect = EditorGUILayout.GetControlRect();
 				const int width = 215;
 				const int height = 65;
 				const int space = 10;
 				int nbCol = Mathf.Max(Screen.width / width, 1);
+				int nbRow = Mathf.CeilToInt(StatisticsData.Instance.statisticsRange.Count / (float)nbCol);
+				int windowHeight = (nbRow * height) + (nbRow * space);
+				Rect startRect = EditorGUILayout.GetControlRect(false, windowHeight);
 
 				GUIStyle centeredBoldLabel = CustomGUIStyle.Label(fontStyle: FontStyle.Bold, alignment: TextAnchor.UpperCenter);
 				GUIStyle centeredLabel = CustomGUIStyle.Label(alignment: TextAnchor.UpperCenter);
