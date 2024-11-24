@@ -34,16 +34,33 @@ namespace LRT.Smith.Statistics
 	/// </summary>
 	public class ModStatistic : Statistic
 	{
+		public IReadOnlyList<Modifier> Offsets => offsets.AsReadOnly();
+		public IReadOnlyList<Modifier> Percentages => percentages.AsReadOnly();
+		public float clampMin { get; private set; }
+		public float clampMax { get; private set; }
+		public float? fixedValue { get; private set; }
+		public float? fixedPercentage { get; private set; }
+
 		private List<Modifier> offsets;
 		private List<Modifier> percentages;
-		private float clampMin;
-		private float clampMax;
-		private float? fixedValue;
-		private float? fixedPercentages;
 
-		protected ModStatistic(StatisticRange range, int level = 1) : base(range, level) { }
+		protected ModStatistic(StatisticRange range, int level = 1) : base(range, level)
+		{
+			clampMin = range.clampMin;
+			clampMax = range.clampMax;
+		}
 
-		internal ModStatistic(StatisticSave save) : base(save) { }
+		internal ModStatistic(ModStatisticSave save) : this(StatisticsData.Instance.GetByID(save.baseSave.id), save.baseSave.level)
+		{
+			offsets = save.offsets;
+			percentages = save.percentages;
+			
+			if (save.hasFixedValue)
+				fixedValue = save.fixedValue;
+
+			if (save.hasFixedPercent)
+				fixedPercentage = save.fixedPercent;
+		}
 
 		/// <summary>
 		/// The value of this statistic modded by the offset, multipliers, min and max clamping.
@@ -58,11 +75,11 @@ namespace LRT.Smith.Statistics
 
 			float baseValue = base.GetValue();
 
-			if (fixedPercentages.HasValue)
-				return baseValue * fixedPercentages.Value;
+			if (fixedPercentage.HasValue)
+				return baseValue * fixedPercentage.Value;
 
-			baseValue += offsets.Sum(m => m.value);
-			baseValue *= percentages.Aggregate(1f, (acc, m) => acc + (m.value - 1));
+			baseValue += Offsets.Sum(m => m.value);
+			baseValue *= Percentages.Aggregate(1f, (acc, m) => acc + (m.value - 1));
 
 			float clamp = Mathf.Clamp(baseValue, clampMin, clampMax);
 
@@ -132,14 +149,14 @@ namespace LRT.Smith.Statistics
 		/// <param name="value">The fixed percentage</param>
 		public void SetFixedPercentage(float value)
 		{
-			fixedPercentages = value;
+			fixedPercentage = value;
 		}
 
-		public void RemoveFixedPercentage() => fixedPercentages = null;
+		public void RemoveFixedPercentage() => fixedPercentage = null;
 
 		private void RemoveFrom(List<Modifier> list, string identifier)
 		{
-			Modifier target = offsets.FirstOrDefault(o => o.identifier == identifier);
+			Modifier target = Offsets.FirstOrDefault(o => o.identifier == identifier);
 
 			if (target == null)
 			{
