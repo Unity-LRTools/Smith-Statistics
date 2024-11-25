@@ -62,7 +62,7 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The normalized level of this item [0..1].
 		/// </summary>
-		private float NormalizedLevel => maxLevel == 1 ? 1 : currentLevel / (float)maxLevel;
+		private float NormalizedLevel => maxLevel == 1 ? 1 : (currentLevel-1) / ((float)maxLevel-1);
 
 		/// <summary>
 		/// The maximum level this statistic can reach.
