@@ -1,6 +1,6 @@
 namespace LRT.Smith.Statistics
 {
-	public static class StatisticSaveExtension
+	public static class StatisticSaveHelper
 	{
 		public static StatisticSave Save(this Statistic statistic) => new StatisticSave(statistic);
 		public static Statistic Load(StatisticSave save)
