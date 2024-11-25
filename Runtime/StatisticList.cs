@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace LRT.Smith.Statistics
 {
-	public class ListStatistic : List<Statistic>
+	public class StatisticList<T> : List<T> where T : Statistic
     {
         /// <summary>
         /// Return the sum of the desired type
