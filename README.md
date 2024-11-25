@@ -46,12 +46,12 @@ Represents a statistic that dynamically changes based on its level.
 
 ### Events
 | **Name**| **Description**|
-|-------------------|-------------------------------------------------------------------------------|
+|--|------|
 | `OnValueChanged` | Triggered whenever the statistic's value changes. Provides the updated statistic. |
 
 ### Properties
 | **Name** | **Type** | **Description**|
-|-----------------|------------|---------------------------------------------------------------------------------|
+|--|--|-----|
 | `ID` | `string` | A unique identifier representing the type of statistic.|
 | `Name` | `string` | The display name or localization key of the statistic.|
 | `Level` | `int` | The current level of the statistic. Changing this property recalculates its value.|
@@ -59,8 +59,9 @@ Represents a statistic that dynamically changes based on its level.
 
 ### Methods
 | **Signature** | **Description** |
-|--------------------------------------|---------------------------------------------------------------------|
-| `float? GetValueAt(int level)` | Returns the statistic's value at a specific level. Throws an exception if the level is out of range. |
+|--|------|
+| `float? GetValueAt(int level)` | Returns the statistic's value at a specific level. Throws an exception if the level is out of range.|
+| `StatisticSave Save()` | Returns all the field needed to save a statistic in a struct.|
 
 ## Mod Statistic
 
@@ -68,17 +69,17 @@ Extends `Statistic` to support modifications such as offsets, percentages, and c
 
 ### Properties
 | **Name** | **Type** | **Description** |
-|---------------------|--------------------------|----------------------------------------------|
-| `Offsets` | `IReadOnlyList<Modifier>`| A list of offset modifiers applied to the statistic.                           |
-| `Percentages` | `IReadOnlyList<Modifier>`| A list of percentage modifiers applied to the statistic.                       |
-| `clampMin` | `float` | The minimum value the statistic can reach after modifications.                 |
-| `clampMax` | `float` | The maximum value the statistic can reach after modifications.                 |
-| `fixedValue` | `float?` | A fixed value overriding all other calculations.                               |
+|--|---|-----|
+| `Offsets` | `IReadOnlyList<Modifier>`| A list of offset modifiers applied to the statistic.|
+| `Percentages` | `IReadOnlyList<Modifier>`| A list of percentage modifiers applied to the statistic.|
+| `clampMin` | `float` | The minimum value the statistic can reach after modifications.|
+| `clampMax` | `float` | The maximum value the statistic can reach after modifications.|
+| `fixedValue` | `float?` | A fixed value overriding all other calculations.|
 | `fixedPercentage` | `float?` | A fixed percentage multiplier overriding all other calculations, except fixed value.|
 
 ### Methods
 | **Signature** | **Description**|
-|---------|---------------------------------------|
+|--|-----|
 |`void AddOffset(float value, string identifier)` | Adds an offset modifier. Can be positive or negative.|
 |`void RemoveOffset(string identifier)`| Removes an offset modifier by its identifier.|
 |`void AddPercentage(float value, string identifier)` | Adds a percentage modifier. Throws an exception if the value is 0.|
@@ -87,6 +88,16 @@ Extends `Statistic` to support modifications such as offsets, percentages, and c
 |`void RemoveFixedValue()` | Removes the fixed value, reverting to normal calculations.|
 |`void SetFixedPercentage(float value)` | Sets a fixed percentage multiplier, overriding other calculations.|
 |`void RemoveFixedPercentage()` | Removes the fixed percentage multiplier.|
+|`ModStatisticSave Save()` | Returns all the field needed to save a modstatistic in a struct.|
+
+## ListStatistic
+Extends `List<T> where T : Statistic` to grant behaviour directly linked to statistic.
+
+### Methods
+| **Signature** | **Description**|
+|--|-----|
+|`float Sum(string type)` | Return the sum of the desired type.|
+|`float CountStatistic()`| Count the total number of different statistic in the list.|
 
 ## Examples
 ### Simple usage
@@ -99,5 +110,42 @@ public void Example()
     Debug.Log(power);
 }
 ```
+Here we are gonna set all the player statistic to 20% of their actual value.
+```csharp
+public void Example() 
+{
+    Player player = new Player();
+    foreach(ModStatistic statistic in player.statistics) 
+    {
+        statistic.RemoveFixedValue(); // Ensure there is no fixed value because they have greater priority over fixed percentage
+        statistic.SetFixedPercentage(0.2f); // The statistic base value will be multiply by 0.2 and skip other modifications
+    }
+}
+```
+It's also possible using StatisticList<T> to sum value inside the list or have helping method.
+```csharp
+public void Example() 
+{
+    StatisticList<ModStatistic> list = new StatisticList<ModStatistic>();
+    list.Add(new Power()); // By default it can be 5
+    list.Add(new Power());
+    list.Add(new Health());
+    
+    Debug.Log(list.Sum(nameof(Power))); // "10"
+    Debug.Log(list.Count); // "3"
+    Debug.Log(list.CountStatistic()); // "2", because there only 2 different statistic
+}
+```
 
 ### Save & Load
+Here is how to save a `Statistic` and load it again. It goes the same for `ModStatistic`
+```csharp
+public void SaveAndLoad() 
+{
+    Health health = new Health();
+    StatisticSave saveData = health.Save(); // return a serializable struct with only serializable field
+    // Save this struct somewhere and get it later
+    Statistic statistic = StatisticSaveHelper.Load(saveData);
+    health = statistic as Health;
+}
+```
