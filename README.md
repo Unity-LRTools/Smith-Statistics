@@ -105,7 +105,7 @@ Extends `List<T> where T : Statistic` to grant behaviour directly linked to stat
 
 ## Examples
 ### Simple usage
-An example where we set the level of the stastic then get his value.
+An example where we set the level of the statistic then get his value.
 ```csharp
 public void Example() 
 {
@@ -142,7 +142,7 @@ public void Example()
 ```
 
 ### Save & Load
-Here is how to save a `Statistic` and load it again. It goes the same for `ModStatistic`
+Here is how to save a `Statistic` and load it again. It goes the same for `ModStatistic`.
 ```csharp
 public void SaveAndLoad() 
 {
