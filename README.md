@@ -25,6 +25,8 @@ It allow you to create new statistic, update them, or modify the settings of the
 ### Statistic creation properties
 The table below outlines the configurable properties for statistics in the system.
 
+![Create panel](Editor/Pictures/create_panel_filled.png)
+
 | **Property**|**Description**|
 |--|------|
 | **Statistic ID**| A unique identifier assigned to each statistic. This ID is also used as the class name for the generated property.|
@@ -38,6 +40,8 @@ The table below outlines the configurable properties for statistics in the syste
 | **Is Clamp**| Enables clamping to restrict the statistic’s value within defined bounds, if modifications are allowed.|
 | **Clamp Min**| Specifies the minimum value limit for the statistic when clamping is enabled.|
 | **Clamp Max**| Specifies the maximum value limit for the statistic when clamping is enabled.|
+
+![Create panel](Editor/Pictures/read_panel_filled.png)
 
 ## API Documentation
 ### Statistic Class
