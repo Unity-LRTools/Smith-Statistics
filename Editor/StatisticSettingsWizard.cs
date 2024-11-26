@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace LRT.Smith.Statistics.Editor
 {
@@ -348,10 +349,11 @@ namespace LRT.Smith.Statistics
 
 			public override void Show()
 			{
+				float windowWidth = wizard.position.width;
 				const int width = 215;
 				const int height = 65;
 				const int space = 10;
-				int nbCol = Mathf.Max(Screen.width / width, 1);
+				int nbCol = Mathf.Max((int)windowWidth / width, 1);
 				int nbRow = Mathf.CeilToInt(StatisticsData.Instance.statisticsRange.Count / (float)nbCol);
 				int windowHeight = (nbRow * height) + (nbRow * space);
 				Rect startRect = EditorGUILayout.GetControlRect(false, windowHeight);
