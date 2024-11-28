@@ -1,18 +1,22 @@
-## [0.6.0] - 17/11/2024
+## [0.7.0] - 28/11/2024
+### Drawer and serialization
+- Added a drawer to statistic value and serialize for inspector
+
+## [0.6.0] - 24/11/2024
 ### Moddable statistics & developper mode
 - Add and implement moddable statistic including save system
 - Add developper mode and default value for statistic settings in editor
 
-## [0.5.0] - 17/11/2024
+## [0.5.0] - 21/11/2024
 ### Save that shit - Lil Peep
 - Remove statistic working without being abstract
 - Add very basic save and load system
 
-## [0.4.0] - 17/11/2024
+## [0.4.0] - 21/11/2024
 ### Better tool
 - Implement json export and import in settings panle of editor window
 
-## [0.3.1] - 17/11/2024
+## [0.3.1] - 18/11/2024
 ### Better tool
 - Implement result preview when editing or creating a new statistic
 
