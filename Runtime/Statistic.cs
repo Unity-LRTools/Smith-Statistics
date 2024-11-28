@@ -7,6 +7,7 @@ namespace LRT.Smith.Statistics
 	/// <summary>
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
+	[Serializable]
 	public class Statistic : IFormattable, IComparable
 	{
 		/// <summary>
@@ -47,17 +48,17 @@ namespace LRT.Smith.Statistics
 		/// The level of this statistic used to calculate his real value.
 		/// The level minimum is 1.
 		/// </summary>
-		private int currentLevel;
+		[SerializeField] private int currentLevel;
+
+		/// <summary>
+		/// The type of this statistic
+		/// </summary>
+		[SerializeField] private string id;
 
 		/// <summary>
 		/// The display name of the statistic
 		/// </summary>
 		private string name;
-
-		/// <summary>
-		/// The type of this statistic
-		/// </summary>
-		private string id;
 
 		/// <summary>
 		/// The normalized level of this item [0..1].
@@ -74,6 +75,8 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		private float? value;
 
+		private bool init;
+
 		/// <summary>
 		/// The type of the statistic to ensure int value stay int even in float class
 		/// </summary>
@@ -87,6 +90,8 @@ namespace LRT.Smith.Statistics
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public float? GetValueAt(int level)
 		{
+			Init();
+
 			if (level > maxLevel)
 				throw new ArgumentOutOfRangeException($"Target level '{level}' is out of range");
 
@@ -98,6 +103,8 @@ namespace LRT.Smith.Statistics
 		/// </returns>
 		protected virtual float GetValue()
 		{
+			Init();
+
 			if (!value.HasValue)
 				UpdateValue();
 
@@ -143,19 +150,36 @@ namespace LRT.Smith.Statistics
 				OnValueChanged?.Invoke(this);
 		}
 
-		protected Statistic(StatisticRange range, int level = 1)
+		protected void Init()
 		{
+			if (init)
+				return;
+
+			StatisticRange range = StatisticsData.Instance.GetByID(id);
+
 			maxLevel = range.maxLevel;
 			ease = range.ease;
 			name = range.name;
 			minValue = range.minValue;
 			maxValue = range.maxValue;
 			valueType = range.valueType;
-			id = range.statisticID;
-			SetCurrentLevel(Mathf.Max(1, level));
+
+			OnInit(range);
+
+			init = true;
 		}
 
-		internal Statistic(StatisticSave save) : this(StatisticsData.Instance.GetByID(save.id), save.level) { }
+		protected virtual void OnInit(StatisticRange range) { }
+
+		public Statistic() { }
+
+		protected Statistic(string rangeID, int level = 1)
+		{
+			id = rangeID;
+			currentLevel = level;
+		}
+
+		internal Statistic(StatisticSave save) : this(save.id, save.level) { }
 
 		#region Operator override
 		public static implicit operator float(Statistic stat) => stat.Value;

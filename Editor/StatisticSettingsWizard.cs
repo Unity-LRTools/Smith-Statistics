@@ -20,7 +20,9 @@ namespace LRT.Smith.Statistics.Editor
 		private SSWizardPanelType state = SSWizardPanelType.Create;
 		private Dictionary<SSWizardPanelType, SSWizardPanel> panels;
 
-		const string folderPath = "Assets/Scripts/Smith";
+		//const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
+		const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
+
 		readonly string filePath = Path.Combine(folderPath, "Statistics.cs");
 
 		Vector2 scrollPosition; //Scroll position for whole window
@@ -36,7 +38,7 @@ namespace LRT.Smith.Statistics.Editor
 		private const string classTemplate =
 @"	public class [[STATISTIC_ID]] : [[STATISTIC_CLASS]]
 	{
-		public [[STATISTIC_ID]](int level = 1) : base(StatisticsData.Instance.GetByID(nameof([[STATISTIC_ID]])), level) { }
+		public [[STATISTIC_ID]](int level = 1) : base(nameof([[STATISTIC_ID]]), level) { }
 	}
 ";
 

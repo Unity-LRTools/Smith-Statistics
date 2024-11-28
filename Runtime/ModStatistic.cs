@@ -44,13 +44,9 @@ namespace LRT.Smith.Statistics
 		private List<Modifier> offsets = new List<Modifier>();
 		private List<Modifier> percentages = new List<Modifier>();
 
-		protected ModStatistic(StatisticRange range, int level = 1) : base(range, level)
-		{
-			clampMin = range.clampMin;
-			clampMax = range.clampMax;
-		}
+		protected ModStatistic(string rangeID, int level = 1) : base(rangeID, level) { }
 
-		internal ModStatistic(ModStatisticSave save) : this(StatisticsData.Instance.GetByID(save.baseSave.id), save.baseSave.level)
+		internal ModStatistic(ModStatisticSave save) : this(save.baseSave.id, save.baseSave.level)
 		{
 			offsets = save.offsets;
 			percentages = save.percentages;
@@ -60,6 +56,12 @@ namespace LRT.Smith.Statistics
 
 			if (save.hasFixedPercent)
 				fixedPercentage = save.fixedPercent;
+		}
+
+		protected sealed override void OnInit(StatisticRange range)
+		{
+			clampMin = range.clampMin;
+			clampMax = range.clampMax;
 		}
 
 		/// <summary>
