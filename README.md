@@ -43,6 +43,11 @@ The table below outlines the configurable properties for statistics in the syste
 
 ![Create panel](Editor/Pictures/read_panel_filled.png)
 
+### Statistic Drawer
+How the statistic are displayed in the inspector.\
+You can pick the level and the type of the statistic.\
+![Create panel](Editor/Pictures/component_statistic.png)
+
 ## API Documentation
 ### Statistic Class
 
