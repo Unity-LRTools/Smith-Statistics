@@ -32,6 +32,7 @@ namespace LRT.Smith.Statistics
 	/// stat.AddPercentage (-0.1)	// => (10 + 5) * (1+0.3-0.1)
 	/// </code>
 	/// </summary>
+	[Serializable]
 	public class ModStatistic : Statistic
 	{
 		public IReadOnlyList<Modifier> Offsets => offsets.AsReadOnly();
@@ -43,6 +44,8 @@ namespace LRT.Smith.Statistics
 
 		private List<Modifier> offsets = new List<Modifier>();
 		private List<Modifier> percentages = new List<Modifier>();
+
+		public ModStatistic() : base() { }
 
 		protected ModStatistic(string rangeID, int level = 1) : base(rangeID, level) { }
 

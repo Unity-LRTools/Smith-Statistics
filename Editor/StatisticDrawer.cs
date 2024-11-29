@@ -1,14 +1,12 @@
 using LRT.Utility;
 using System;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Windows;
 
 namespace LRT.Smith.Statistics.Editor
 {
-	[CustomPropertyDrawer(typeof(Statistic))]
+	[CustomPropertyDrawer(typeof(Statistic), true)]
 	public class StatisticDrawer : PropertyDrawer
 	{
 		static string[] options;
@@ -22,15 +20,19 @@ namespace LRT.Smith.Statistics.Editor
 			if (options == null || options.Length == 0)
 				options = GetOptions();
 
-			int idByLabel = Array.IndexOf(options, FirstLetterToUpper(label.text));
+			int idByLabel = Array.IndexOf(options, FirstLetterToUpper(property.name));
 			quickMatch = idByLabel >= 0;
-			
-			if (string.IsNullOrEmpty(id.stringValue))
-			{
+
+			if (string.IsNullOrEmpty(id.stringValue)) 
 				id.stringValue = idByLabel != -1 ? options[idByLabel] : options[0];
-			}
 
 			StatisticRange range = StatisticsData.Instance.GetByID(id.stringValue);
+
+			if (range == null)
+			{
+				id.stringValue = options[0];
+				range = StatisticsData.Instance.GetByID(id.stringValue);
+			}
 
 			float value = Statistic.GetValueFor(level.intValue, range);
 			string valueLabel = range.valueType == StatisticType.Int ? ((int)value).ToString() : value.ToString();
@@ -38,7 +40,6 @@ namespace LRT.Smith.Statistics.Editor
 
 			if (quickMatch)
 			{
-
 				EditorGUI.LabelField(position.SliceH(0.3f, 0), label);
 				level.intValue = EditorGUI.IntSlider(position.RemainderH(0.3f).SliceH(0.8f, 0), level.intValue, 1, range.maxLevel);
 				EditorGUI.LabelField(position.RemainderH(0.3f).RemainderH(0.8f), valueLabel);
