@@ -1,7 +1,19 @@
 # StatsSmith
-StatsSmith is an easy-to-use system for managing equipment statistics in Unity. Quickly set up custom statistics with a flexible, lightweight tool.
+
+Smith-Statistic is a powerful tool designed to streamline game development by simplifying the management of statistics and values. Its key strengths include:
+
+* **Configuration:** Quickly preview and configure values for each rank throught an easy a quick method, saving valuable time during development.
+* **Consistency:** Ensures consistent values throughout the game, reducing errors and maintaining balance.
+* **Developer Support:** Automatically generates a script containing all statistics as pure classes, providing a ready-to-use, lightweight system that integrates seamlessly into your project.
+* **Designer-Friendly:** Empowers designers to configure and balance variables throughout development with ease, allowing for rapid iterations.
+* **Developer Mode for Safety:** Includes a special developer mode to protect sensitive functionalities (e.g., script generation), minimizing the risk of accidental changes that could disrupt the codebase.
+
+With Smith-Statistic, both developers and designers benefit from a robust, user-friendly solution for managing in-game statistics.
+
+To disable developper mode, enabled by default, go to `Packages/Smith-Statistics/Editor/StatisticSettings.asset`. 
 
 ## How to install
+
 Go to your unity's root project.\
 Under the folder `Packages` open the file `Manifest.json`.\
 Add the package and his dependencies to the project :
@@ -16,11 +28,52 @@ Add the package and his dependencies to the project :
 }
 ```
 
+## Practical example
+
+When is it beneficial to use Smith-Statistic, and how can it be effectively implemented?
+
+### Using Smith-Statistic in an RPG  
+
+Imagine you're developing an RPG where the player has a health stat. Here's how **Smith-Statistic** can help:  
+
+1. **Creating the Base Statistic**:  
+   - Define a statistic named `baseHealth` for the player.  
+   - Toggle it as moddable, since it will need to be modified during gameplay.  
+   - This statistic will represent the player's maximum health at each level, without any additional modifiers.  
+     - **Level 1**: 85 health points.  
+     - **Level 60 (max level)**: 1535 health points.  
+
+2. **Adding a Secondary Statistic**:  
+   - Create another statistic called `Health`, representing health bonuses from items or equipment.  
+   - Mark this statistic as non-modifiable and set its values based on item level. For example:  
+     - **Level 1**: Items can provide a bonus of 10 health points.  
+     - **Level 315**: Items can provide a bonus of 455 health points.  
+
+3. **Combining Statistics**:  
+   - Each piece of equipment the player wears will modify the `baseHealth` by adding the value of its `Health` statistic. This modification is applied using a simple offset system, ensuring the final health reflects both the player's base health and equipment bonuses.  
+
+### Smith-Statistic in a Shooter Rogue-Like  
+
+Let's say you're creating a shooter rogue-like. Here's how you can set up relevant statistics using **Smith-Statistic**:  
+
+1. **Defining Ammo Capacity**:  
+   - Create a moddable statistic called `AmmoCapacity`.  
+   - This statistic will span from level 1 to level 5, representing an increase from **10 ammo** to **35 ammo**.  
+   - It can be modified during gameplay through another statistic called `AmmoBonus`, which is affected by items the player collects.  
+
+2. **Setting Reload Speed**:  
+   - Define another statistic named `ReloadSpeed`.  
+   - Use only 3 ranks for simplicity:
+     - **Level 1**: 2.5 seconds.  
+     - **Level 2**: 1.5 seconds.  
+     - **Level 3**: 0.5 seconds.  
+   - This statistic decreases reload time as the player pick this bonus, improving their efficiency with each rank.  
+
 ## Documentation
 
 ### Editor window
-You'll find the editor in the menu item of unity main window under `Smith > Statistic`.
-It allow you to create new statistic, update them, or modify the settings of the tool.
+You can access the editor from the Unity main menu under Smith > Statistic.
+The editor allows you to create new statistics, update existing ones, and configure the tool's settings.
 
 ### Statistic creation properties
 The table below outlines the configurable properties for statistics in the system.
@@ -44,13 +97,10 @@ The table below outlines the configurable properties for statistics in the syste
 ![Create panel](Editor/Pictures/read_panel_filled.png)
 
 ### Statistic Drawer
-How the statistic are displayed in the inspector.\
-You can pick the level and the type of the statistic.\
+The statistics are displayed in the Inspector, where you can select the level and type of each statistic.\
 ![Create panel](Editor/Pictures/component_statistic.png)
 
-The type can be infered by the name of the property if it match the class name. For example if you have a statistic named `Dexterity`, 
-and a looking like `public Statistic dexterity = new Statistic()`. The drawer will understand you want to display the dexterity statistic 
-and fetch the statistic range data.\
+The type can be inferred from the property name if it matches the class name. For example, if you have a statistic named `Agility` and a property like `public Statistic agility = new Statistic()`, the drawer will automatically recognize that you want to display the Agility statistic and fetch its corresponding range data.\
 ![Create panel](Editor/Pictures/component_statistic_infered.png)
 
 ## API Documentation
@@ -66,9 +116,9 @@ Represents a statistic that dynamically changes based on its level.
 ### Properties
 | **Name** | **Type** | **Description**|
 |--|--|-----|
-| `ID` | `string` | A unique identifier representing the type of statistic.|
+| `ID` | `string` | A unique identifier representing the type of statistic. Serialized.|
+| `Level` | `int` | The current level of the statistic. Changing this property recalculates its value. Serialized.|
 | `Name` | `string` | The display name or localization key of the statistic.|
-| `Level` | `int` | The current level of the statistic. Changing this property recalculates its value.|
 | `Value` | `float` | Gets the current calculated value of the statistic based on its level.|
 
 ### Methods
