@@ -63,7 +63,7 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The normalized level of this item [0..1].
 		/// </summary>
-		private float NormalizedLevel => maxLevel == 1 ? 1 : (currentLevel-1) / ((float)maxLevel-1);
+		private float NormalizedLevel => maxLevel == 1 ? 1 : (currentLevel - 1) / ((float)maxLevel - 1);
 
 		/// <summary>
 		/// The maximum level this statistic can reach.
@@ -82,6 +82,17 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		private StatisticType valueType;
 
+		public static float GetValueFor(int level, StatisticRange range)
+			=> GetValueFor(level, range.minValue, range.maxValue, range.maxLevel, range.ease);
+
+		public static float GetValueFor(int level, float rangeMin, float rangeMax, int maxLevel, Ease ease)
+			=> GetValueFor((level - 1f) / (maxLevel - 1), rangeMin, rangeMax, maxLevel, ease);
+
+		public static float GetValueFor(float normalizedLevel, float rangeMin, float rangeMax, int maxLevel, Ease ease)
+		{
+			return Mathf.Lerp(rangeMin, rangeMax, ease.Evaluate(normalizedLevel));
+		}
+
 		/// <summary>
 		/// Return the value of this statistic for a specific level
 		/// </summary>
@@ -95,7 +106,7 @@ namespace LRT.Smith.Statistics
 			if (level > maxLevel)
 				throw new ArgumentOutOfRangeException($"Target level '{level}' is out of range");
 
-			return LerpValue(ease.Evaluate(level - 1 / maxLevel - 1));
+			return GetValueFor(level, minValue, maxValue, maxLevel, ease);
 		}
 
 		/// <returns>
@@ -109,16 +120,6 @@ namespace LRT.Smith.Statistics
 				UpdateValue();
 
 			return valueType == StatisticType.Int ? (int)value.Value : value.Value;
-		}
-
-		/// <summary>
-		/// Ask childs to lerp the value
-		/// </summary>
-		/// <param name="easedLevel">The value t lerp's value</param>
-		/// <returns>The final value of this statistic</returns>
-		private float LerpValue(float easedLevel)
-		{
-			return Mathf.Lerp(minValue, maxValue, easedLevel);
 		}
 
 		/// <summary>
@@ -144,7 +145,7 @@ namespace LRT.Smith.Statistics
 		{
 			float? oldValue = value;
 
-			value = LerpValue(ease.Evaluate(NormalizedLevel));
+			value = GetValueFor(NormalizedLevel, minValue, maxValue, maxLevel, ease);
 
 			if (!oldValue.Equals(value))
 				OnValueChanged?.Invoke(this);
