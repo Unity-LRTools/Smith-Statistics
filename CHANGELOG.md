@@ -1,3 +1,8 @@
+## [0.7.2] - 29/11/2024
+### Beautify that drawer
+- Fix bug in statistic drawer
+- Make `ModStatistic` drawable in inspector using drawer
+
 ## [0.7.1] - 29/11/2024
 ### Beautify that drawer
 - Better drawer display using infered data from property
