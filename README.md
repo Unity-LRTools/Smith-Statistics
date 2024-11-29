@@ -48,6 +48,11 @@ How the statistic are displayed in the inspector.\
 You can pick the level and the type of the statistic.\
 ![Create panel](Editor/Pictures/component_statistic.png)
 
+The type can be infered by the name of the property if it match the class name. For example if you have a statistic named `Dexterity`, 
+and a looking like `public Statistic dexterity = new Statistic()`. The drawer will understand you want to display the dexterity statistic 
+and fetch the statistic range data.\
+![Create panel](Editor/Pictures/component_statistic_infered.png)
+
 ## API Documentation
 ### Statistic Class
 
