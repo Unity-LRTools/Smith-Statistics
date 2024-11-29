@@ -1,3 +1,7 @@
+## [0.7.1] - 29/11/2024
+### Beautify that drawer
+- Better drawer display using infered data from property
+
 ## [0.7.0] - 28/11/2024
 ### Drawer and serialization
 - Added a drawer to statistic value and serialize for inspector
