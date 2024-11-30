@@ -80,15 +80,15 @@ namespace LRT.Smith.Statistics
 		/// <summary>
 		/// The type of the statistic to ensure int value stay int even in float class
 		/// </summary>
-		private StatisticType valueType;
+		protected StatisticType valueType;
 
 		public static float GetValueFor(int level, StatisticRange range)
 			=> GetValueFor(level, range.minValue, range.maxValue, range.maxLevel, range.ease);
 
 		public static float GetValueFor(int level, float rangeMin, float rangeMax, int maxLevel, Ease ease)
-			=> GetValueFor((level - 1f) / (maxLevel - 1), rangeMin, rangeMax, maxLevel, ease);
+			=> GetValueFor((level - 1f) / (maxLevel - 1), rangeMin, rangeMax, ease);
 
-		public static float GetValueFor(float normalizedLevel, float rangeMin, float rangeMax, int maxLevel, Ease ease)
+		public static float GetValueFor(float normalizedLevel, float rangeMin, float rangeMax, Ease ease)
 		{
 			return Mathf.Lerp(rangeMin, rangeMax, ease.Evaluate(normalizedLevel));
 		}
@@ -99,7 +99,7 @@ namespace LRT.Smith.Statistics
 		/// <param name="level">Desired level</param>
 		/// <returns>The value for the desired level</returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public float? GetValueAt(int level)
+		public float GetValueAt(int level)
 		{
 			Init();
 
@@ -145,7 +145,7 @@ namespace LRT.Smith.Statistics
 		{
 			float? oldValue = value;
 
-			value = GetValueFor(NormalizedLevel, minValue, maxValue, maxLevel, ease);
+			value = GetValueFor(NormalizedLevel, minValue, maxValue, ease);
 
 			if (!oldValue.Equals(value))
 				OnValueChanged?.Invoke(this);
@@ -190,7 +190,6 @@ namespace LRT.Smith.Statistics
 
 			return stat.Value;
 		}
-
 		public static implicit operator int(Statistic stat)
 		{
 			if (stat.valueType != StatisticType.Int)

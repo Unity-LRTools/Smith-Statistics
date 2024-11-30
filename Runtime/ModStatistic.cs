@@ -84,7 +84,7 @@ namespace LRT.Smith.Statistics
 				return baseValue * fixedPercentage.Value;
 
 			baseValue += Offsets.Sum(m => m.value);
-			baseValue *= Percentages.Aggregate(1f, (acc, m) => acc + (m.value - 1));
+			baseValue *= Percentages.Aggregate(1f, (acc, m) => acc + m.value);
 
 			float clamp = Mathf.Clamp(baseValue, clampMin, clampMax);
 
@@ -161,7 +161,7 @@ namespace LRT.Smith.Statistics
 
 		private void RemoveFrom(List<Modifier> list, string identifier)
 		{
-			Modifier target = Offsets.FirstOrDefault(o => o.identifier == identifier);
+			Modifier target = list.FirstOrDefault(o => o.identifier == identifier);
 
 			if (target == null)
 			{
@@ -171,5 +171,22 @@ namespace LRT.Smith.Statistics
 
 			list.Remove(target);
 		}
+
+		#region Operator override
+		public static implicit operator float(ModStatistic stat)
+		{
+			if (stat.valueType != StatisticType.Float)
+				throw new InvalidCastException();
+
+			return stat.Value;
+		}
+		public static implicit operator int(ModStatistic stat)
+		{
+			if (stat.valueType != StatisticType.Int)
+				throw new InvalidCastException();
+
+			return (int)stat.Value;
+		}
+		#endregion
 	}
 }
