@@ -183,13 +183,20 @@ namespace LRT.Smith.Statistics
 		internal Statistic(StatisticSave save) : this(save.id, save.level) { }
 
 		#region Operator override
-		public static implicit operator float(Statistic stat) => stat.Value;
+		public static implicit operator float(Statistic stat)
+		{
+			if (stat.valueType != StatisticType.Float)
+				throw new InvalidCastException();
+
+			return stat.Value;
+		}
+
 		public static implicit operator int(Statistic stat)
 		{
 			if (stat.valueType != StatisticType.Int)
 				throw new InvalidCastException();
 
-			return (int)stat.value;
+			return (int)stat.Value;
 		}
 		#endregion
 

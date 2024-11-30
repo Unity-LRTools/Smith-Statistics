@@ -1,0 +1,21 @@
+{
+    "name": "LRT.Smith.Statistics.Editor.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:912baee57b693b64090f903ff47cd9cb",
+        "GUID:09004e0a3646d3f4aae4bd015f8c1112"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
