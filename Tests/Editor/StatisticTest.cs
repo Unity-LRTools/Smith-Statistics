@@ -66,9 +66,9 @@ namespace LRT.Smith.Statistics.Editor.Tests
 		}
 
 		[Test]
-		[TestCase(0, 0)]
-		[TestCase(11, 11)]
-		public void Set_StatisticLevel_OutOfRangeException(int expected, int result)
+		[TestCase(0)]
+		[TestCase(11)]
+		public void Set_StatisticLevel_OutOfRangeException(int expected)
 		{
 			Statistic statistic = CreateStatistic(linearRange);
 
@@ -119,6 +119,65 @@ namespace LRT.Smith.Statistics.Editor.Tests
 			Assert.Throws<InvalidCastException>(() =>
 			{
 				int value = statistic;
+			});
+		}
+
+		[Test]
+		[TestCase(1)]
+		[TestCase(5)]
+		[TestCase(10)]
+		public void Method_GetValueAt_Instance(int targetLevel)
+		{
+			Statistic statistic = CreateStatistic(linearRange);			
+
+			float valueAt = statistic.GetValueAt(targetLevel);
+
+			Assert.AreEqual(targetLevel, valueAt);
+		}
+
+		[Test]
+		[TestCase(0)]
+		[TestCase(11)]
+		public void Method_GetValueAt_ThrowException_Instance(int targetLevel)
+		{
+			Statistic statistic = CreateStatistic(linearRange);
+
+			Assert.Throws<ArgumentOutOfRangeException>(() =>
+			{
+				statistic.GetValueAt(targetLevel);
+			});
+		}
+
+		[Test]
+		[TestCase(1)]
+		[TestCase(5)]
+		[TestCase(10)]
+		public void Method_GetValueFor_Static(int targetLevel)
+		{
+			float valueFor = Statistic.GetValueFor(targetLevel, linearRange);
+
+			Assert.AreEqual(targetLevel, valueFor);
+		}
+
+		[Test]
+		[TestCase(0)]
+		[TestCase(11)]
+		public void Method_GetValueFor_ThrowOutOfRangeException_Static(int targetLevel)
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(() =>
+			{
+				Statistic.GetValueFor(targetLevel, linearRange);
+			});
+		}
+
+		[Test]
+		[TestCase(-0.1f)]
+		[TestCase(1.1f)]
+		public void Method_GetValueFor_ThrowArgumentException_Static(float normalizedLevel)
+		{
+			Assert.Throws<ArgumentException>(() =>
+			{
+				Statistic.GetValueFor(normalizedLevel, linearRange.minValue, linearRange.maxValue, linearRange.ease);
 			});
 		}
 
