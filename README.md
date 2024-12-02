@@ -84,6 +84,7 @@ The table below outlines the configurable properties for statistics in the syste
 |--|------|
 | **Statistic ID**| A unique identifier assigned to each statistic. This ID is also used as the class name for the generated property.|
 | **Value Type** | Specifies the underlying data type for the statistic. Supported types include `int` and `float`.|
+| **Tags** | Defines the tags of the statistic.|
 | **Is Moddable**| Indicates whether this statistic supports external modifications. Refer to the **ModStatistic** section for more details.|
 | **Statistic Name**| The human-readable name or localization key associated with this statistic.|
 | **Growth**| Determines the growth behavior of the statistic, leveraging common easing curves for dynamic scaling.|
