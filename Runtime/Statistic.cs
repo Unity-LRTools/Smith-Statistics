@@ -29,6 +29,8 @@ namespace LRT.Smith.Statistics
 
 		public string ID { get => id; }
 
+		public StatisticTags Tags { get => tags; }
+
 		/// <summary>
 		/// The minimum value for this statistic when level equal 0.
 		/// </summary>
@@ -74,6 +76,8 @@ namespace LRT.Smith.Statistics
 		/// The buffered value used to avoid recalculate the value each time
 		/// </summary>
 		private float? value;
+
+		private StatisticTags tags;
 
 		private bool init;
 
@@ -172,6 +176,7 @@ namespace LRT.Smith.Statistics
 			minValue = range.minValue;
 			maxValue = range.maxValue;
 			valueType = range.valueType;
+			tags = range.tags;
 
 			OnInit(range);
 

@@ -121,6 +121,7 @@ namespace LRT.Smith.Statistics
 			GUI.enabled = wasGuiEnabled;
 
 			range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
+			range.tags = StatisticTagsLayout.TagsFlagField("Tags", range.tags);
 			range.isModdable = EditorGUILayout.Toggle(modGUIContent, range.isModdable);
 			range.name = EditorGUILayout.TextField("Statistic name", range.name);
 			range.ease = EaseGUILayout.Ease("Growth", range.ease, true);

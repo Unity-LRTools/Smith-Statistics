@@ -1,5 +1,5 @@
 ### Smith-Statistics ###
 
 # Genenerated code
-Runtime/Generated/*
-Runtime/Generated.meta
+Runtime/Generated/Statistics.cs
+Runtime/Generated/Statistics.cs.meta
