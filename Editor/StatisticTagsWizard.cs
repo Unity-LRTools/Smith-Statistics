@@ -11,8 +11,8 @@ namespace LRT.Smith.Statistics.Editor
 		public Vector2 scrollPosition;
 		Dictionary<int, string> enumNames = new Dictionary<int, string>();
 
-		//const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
-		const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
+		const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
+		//const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
 
 		readonly string filePath = Path.Combine(folderPath, "StatisticTags.cs");
 

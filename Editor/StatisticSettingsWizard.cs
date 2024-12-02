@@ -19,8 +19,8 @@ namespace LRT.Smith.Statistics.Editor
 		private SSWizardPanelType state = SSWizardPanelType.Create;
 		private Dictionary<SSWizardPanelType, SSWizardPanel> panels;
 
-		//const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
-		const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
+		const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
+		//const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
 
 		readonly string filePath = Path.Combine(folderPath, "Statistics.cs");
 
