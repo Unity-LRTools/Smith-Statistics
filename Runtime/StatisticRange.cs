@@ -10,7 +10,7 @@ namespace LRT.Smith.Statistics
 		public string name;
 		public StatisticType valueType;
 
-		public StatisticTags tags;
+		public StatisticTags tags = new StatisticTags();
 		public Ease ease;
 		public int maxLevel;
 		public float maxValue;

@@ -14,19 +14,18 @@ namespace LRT.Smith.Statistics.Editor
 {
 	public class StatisticSettingsWizard : EditorWindow
 	{
-		public StatisticSettings settings;
-
+		#region Fields
 		private SSWizardPanelType state = SSWizardPanelType.Create;
 		private Dictionary<SSWizardPanelType, SSWizardPanel> panels;
 
-		const string folderPath = "Packages/Smith-Statistics/Runtime/Generated"; //BUILD MODE
-		//const string folderPath = "Assets/Smith-Statistics/Runtime/Generated"; //TEST MODE
+		const string folderPath = "Assets/Smith/Statistics/";
 
 		readonly string filePath = Path.Combine(folderPath, "Statistics.cs");
 
 		Vector2 scrollPosition; //Scroll position for whole window
 		List<Vector2> resultScrollPositions = new List<Vector2>();
 		int resultScrollCount = 1;
+		#endregion
 
 		#region Template
 		/// <summary>
@@ -78,14 +77,6 @@ namespace LRT.Smith.Statistics
 				};
 				state = SSWizardPanelType.Read;
 			}
-
-			if (settings == null)
-			{
-				settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Packages/Smith-Statistics/Editor/StatisticSettings.asset");
-
-				if (settings == null)
-					settings = AssetDatabase.LoadAssetAtPath<StatisticSettings>("Assets/Smith-Statistics/Editor/StatisticSettings.asset");
-			}
 		}
 
 		void OnGUI()
@@ -108,6 +99,7 @@ namespace LRT.Smith.Statistics
 			GUI.FocusControl(null);
 		}
 
+		int mask = 0;
 		public void DrawEditableRange(StatisticRange range)
 		{
 			if (range == null)
@@ -116,12 +108,12 @@ namespace LRT.Smith.Statistics
 			GUIContent modGUIContent = new GUIContent("Is Moddable", "Moddable statistic can be modified using offsets and percentage.");
 
 			bool wasGuiEnabled = GUI.enabled;
-			GUI.enabled = settings.developerMode;
+			GUI.enabled = StatisticSettings.Instance.developerMode;
 			range.statisticID = EditorGUILayout.TextField("Statistic id", range.statisticID);
 			GUI.enabled = wasGuiEnabled;
 
 			range.valueType = (StatisticType)EditorGUILayout.EnumPopup("Value type", range.valueType);
-			range.tags = StatisticTagsLayout.TagsFlagField("Tags", range.tags);
+			range.tags = (StatisticTags)TagsLayout.TagsFlagField("Tags", range.tags, StatisticsData.Instance.statisticTags);
 			range.isModdable = EditorGUILayout.Toggle(modGUIContent, range.isModdable);
 			range.name = EditorGUILayout.TextField("Statistic name", range.name);
 			range.ease = EaseGUILayout.Ease("Growth", range.ease, true);
@@ -271,7 +263,7 @@ namespace LRT.Smith.Statistics
 
 		private void DrawTopContainer(Rect container)
 		{
-			if (settings.developerMode)
+			if (StatisticSettings.Instance.developerMode)
 			{
 				ShowMenuButton(container.SliceH(0.333f, 0), "Read", SSWizardPanelType.Read);
 				ShowMenuButton(container.SliceH(0.333f, 1), "Create", SSWizardPanelType.Create);
@@ -388,7 +380,7 @@ namespace LRT.Smith.Statistics
 					CustomGUIUtility.DrawBorder(rect, borderColor, 2);
 
 					// Create delete button
-					if (wizard.settings.developerMode && GUI.Button(rect.MoveX(rect.width - 23).MoveY(3).SetWidth(22).SetHeight(22), EditorGUIUtility.IconContent("TreeEditor.Trash"), npButton))
+					if (StatisticSettings.Instance.developerMode && GUI.Button(rect.MoveX(rect.width - 23).MoveY(3).SetWidth(22).SetHeight(22), EditorGUIUtility.IconContent("TreeEditor.Trash"), npButton))
 						DeleteStatistic(range);
 
 					// Prepare button before shrinking
@@ -526,7 +518,7 @@ namespace LRT.Smith.Statistics
 
 			public override void Show()
 			{
-				wizard.settings.exportPath = EditorGUILayout.TextField("Export Path", wizard.settings.exportPath);
+				StatisticSettings.Instance.exportPath = EditorGUILayout.TextField("Export Path", StatisticSettings.Instance.exportPath);
 				DrawButton("Export statistics to .json", ExportToJson);
 				GUILayout.Space(10);
 				file = (TextAsset)EditorGUILayout.ObjectField("Import File", file, typeof(TextAsset), false);
@@ -544,7 +536,7 @@ namespace LRT.Smith.Statistics
 				StatisticsRangeWrapper wrapper = new StatisticsRangeWrapper() { items = StatisticsData.Instance.statisticsRange };
 				string json = JsonUtility.ToJson(wrapper);
 
-				File.WriteAllText(Path.Combine(wizard.settings.exportPath, "Smith_StatisticsData.json"), json);
+				File.WriteAllText(Path.Combine(StatisticSettings.Instance.exportPath, "Smith_StatisticsData.json"), json);
 				AssetDatabase.Refresh();
 			}
 
