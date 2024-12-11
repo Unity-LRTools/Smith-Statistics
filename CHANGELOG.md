@@ -1,5 +1,9 @@
 ## [0.7.3] - 01/12/2024
 ### Fixing percentages
+- Add tags system to help filter statistics
+
+## [0.7.3] - 01/12/2024
+### Fixing percentages
 - Fix remove method for percentages modifier
 
 ## [0.7.2] - 29/11/2024
