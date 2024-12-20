@@ -1,5 +1,10 @@
+## [0.9.0] - 20/12/2024
+### Interface and cloning
+- Add interface to base class
+- Implement ICloneable interface
+
 ## [0.7.3] - 01/12/2024
-### Fixing percentages
+### Add tags system
 - Add tags system to help filter statistics
 
 ## [0.7.3] - 01/12/2024
