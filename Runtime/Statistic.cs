@@ -1,5 +1,6 @@
 using LRT.Easing;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LRT.Smith.Statistics
@@ -8,12 +9,12 @@ namespace LRT.Smith.Statistics
 	/// Represent a statistic that is modified by his level.
 	/// </summary>
 	[Serializable]
-	public class Statistic : IFormattable, IComparable
+	public class Statistic : IFormattable, IComparable, IStatistic, ICloneable
 	{
 		/// <summary>
 		/// Emitted when the value has been changed.
 		/// </summary>
-		public event Action<Statistic> OnValueChanged;
+		public event Action<IStatistic> OnValueChanged;
 
 		/// <summary>
 		/// The current value of the statistic based on his level.
@@ -25,11 +26,25 @@ namespace LRT.Smith.Statistics
 		/// </summary>
 		public int Level { get => currentLevel; set => SetCurrentLevel(value); }
 
+		/// <summary>
+		/// The display name of the statistic
+		/// </summary>
 		public string Name { get => name; }
 
+		/// <summary>
+		/// The unique id of the statistic
+		/// </summary>
 		public string ID { get => id; }
 
+		/// <summary>
+		/// List of tag associated to the statistic
+		/// </summary>
 		public StatisticTags Tags { get => tags; }
+
+		/// <summary>
+		/// List of tags associated to the statistic
+		/// </summary>
+		List<string> IStatistic.Tags => Tags.Values;
 
 		/// <summary>
 		/// The minimum value for this statistic when level equal 0.
@@ -217,6 +232,27 @@ namespace LRT.Smith.Statistics
 		public bool Equals(float other) => Value.Equals(other);
 		public int CompareTo(object obj) => Value.CompareTo(obj);
 		public string ToString(string format, IFormatProvider formatProvider) => Value.ToString(format, formatProvider);
+		public override string ToString()
+		{
+			return $"{ID} ({Value})";
+		}
+		public object Clone()
+		{
+			return new Statistic()
+			{
+				id = id,
+				name = name,
+				maxLevel = maxLevel,
+				currentLevel = currentLevel,
+				value = value,
+				valueType = valueType,
+				minValue = minValue,
+				maxValue = maxValue,
+				tags = tags,
+				ease = ease,
+				init = init,
+			};
+		}
 		#endregion
 	}
 }
